@@ -1,3 +1,14 @@
 .venv/
 venv/
 env/
+
+# Config files with secrets
+config.json
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# ChromaDB vectorstore
+doc_vectorstore/
