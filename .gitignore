@@ -4,6 +4,8 @@ env/
 
 # Config files with secrets
 config.json
+.streamlit/
+.streamlit/secrets.toml
 
 # Python cache
 __pycache__/

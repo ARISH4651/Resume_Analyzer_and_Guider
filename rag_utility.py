@@ -34,48 +34,56 @@ def process_document_to_chroma_db(file_name):
     loader = UnstructuredPDFLoader(f"{working_dir}/{file_name}")
     documents = loader.load()
     
-    # splitting te text into chunks
+    # Add file metadata to each document
+    import time
+    start_total = time.time()
+
+    print(f"[TIMER] Starting processing for {file_name}")
+    start_load = time.time()
+    loader = UnstructuredPDFLoader(f"{working_dir}/{file_name}")
+    documents = loader.load()
+    print(f"[TIMER] Document load time: {time.time() - start_load:.2f}s")
+
+    start_split = time.time()
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=2000,
         chunk_overlap=200
     )
     texts = text_splitter.split_documents(documents)
-    
-    # Sanitize metadata to ensure ChromaDB compatibility
+    print(f"[TIMER] Text splitting time: {time.time() - start_split:.2f}s")
+
+    start_sanitize = time.time()
     for doc in texts:
         if doc.metadata:
-            # Remove None values and convert complex types to strings
             doc.metadata = {
                 k: str(v) if v is not None else ""
                 for k, v in doc.metadata.items()
-                if isinstance(k, str) and k  # Only keep valid string keys
+                if isinstance(k, str) and k
             }
-    
-    # Use ChromaDB with collection reset (avoid file locks on Windows)
+    print(f"[TIMER] Metadata sanitization time: {time.time() - start_sanitize:.2f}s")
+
+    start_vector = time.time()
     vectorstore_path = f"{working_dir}/doc_vectorstore"
     collection_name = "pdf_documents"
-    
-    # Try to delete existing collection by resetting it (safer than rmtree)
     try:
-        import chromadb
-        client = chromadb.PersistentClient(path=vectorstore_path)
-        try:
-            client.delete_collection(name=collection_name)
-            print(f"Deleted existing collection: {collection_name}")
-        except Exception:
-            pass  # Collection doesn't exist yet
-    except Exception as e:
-        print(f"Could not reset collection: {e}")
-    
-    # Create new vectorstore
-    vectordb = Chroma.from_documents(
-        documents=texts,
-        embedding=embedding,
-        persist_directory=vectorstore_path,
-        collection_name=collection_name
-    )
-    
-    # Try to persist and release any open handles
+        vectordb = Chroma(
+            persist_directory=vectorstore_path,
+            embedding_function=embedding,
+            collection_name=collection_name
+        )
+        vectordb.add_documents(texts)
+        print(f"Added {len(texts)} chunks from {file_name} to existing ChromaDB collection")
+    except Exception:
+        print(f"Creating new ChromaDB collection for {file_name}")
+        vectordb = Chroma.from_documents(
+            documents=texts,
+            embedding=embedding,
+            persist_directory=vectorstore_path,
+            collection_name=collection_name
+        )
+    print(f"[TIMER] Vectorstore time: {time.time() - start_vector:.2f}s")
+
+    start_persist = time.time()
     try:
         if hasattr(vectordb, "persist"):
             try:
@@ -90,16 +98,13 @@ def process_document_to_chroma_db(file_name):
                 pass
     except Exception:
         pass
+    print(f"[TIMER] Persist/shutdown time: {time.time() - start_persist:.2f}s")
 
-    # Verify data was stored
-    print(f"Stored {len(texts)} chunks in ChromaDB")
+    print(f"[TIMER] Total processing time for {file_name}: {time.time() - start_total:.2f}s")
 
-    # release references and force GC to free files on Windows
     vectordb = None
     gc.collect()
-
     return 0
-
 
 def answer_question(user_question):
     # load the persistent vectordb
