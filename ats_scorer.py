@@ -529,3 +529,165 @@ class ATSScorer:
                     matches.append(f"JD: '{concept}' ↔ Resume: '{found_synonyms[0]}'")
         
         return matches[:5]  # Top 5
+    
+    def calculate_pathfinder_analysis(self, resume: Dict, job_descriptions: List[str]) -> Dict:
+        """
+        Proactive Career Path Analysis (The "Pathfinder") - UNIQUE FEATURE
+        
+        Analyzes 3-5 job descriptions to identify:
+        1. Common high-demand skills across all JDs
+        2. Future-looking keywords
+        3. Skill gaps in candidate's resume
+        4. High-value synonyms to integrate
+        
+        Optimizes resume for the future career path, not just one job.
+        
+        Args:
+            resume: Parsed resume data
+            job_descriptions: List of 3-5 job description texts
+            
+        Returns:
+            Dictionary with career path analysis
+        """
+        result = {
+            'skill_gap_report': [],
+            'high_value_synonyms': [],
+            'common_keywords': [],
+            'high_demand_skills': [],
+            'future_looking_skills': [],
+            'career_optimization_score': 0
+        }
+        
+        if not job_descriptions or len(job_descriptions) < 3:
+            result['error'] = 'Please provide at least 3 job descriptions for career path analysis'
+            return result
+        
+        resume_text = resume.get('text', '').lower()
+        
+        try:
+            # 1. AGGREGATE KEYWORDS ACROSS ALL JDs
+            all_jd_keywords = []
+            keyword_frequency = {}
+            
+            for jd in job_descriptions:
+                jd_lower = jd.lower()
+                # Extract meaningful keywords (filter common words)
+                common_words = {'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 
+                               'of', 'with', 'by', 'from', 'will', 'be', 'is', 'are', 'have', 'has'}
+                keywords = [word for word in re.findall(r'\b[a-z]{4,}\b', jd_lower) 
+                           if word not in common_words]
+                
+                all_jd_keywords.extend(keywords)
+                
+                for keyword in set(keywords):
+                    keyword_frequency[keyword] = keyword_frequency.get(keyword, 0) + 1
+            
+            # 2. IDENTIFY COMMON HIGH-DEMAND KEYWORDS
+            # Keywords appearing in at least 60% of JDs
+            min_frequency = max(2, int(len(job_descriptions) * 0.6))
+            common_keywords = [kw for kw, freq in keyword_frequency.items() 
+                             if freq >= min_frequency]
+            result['common_keywords'] = sorted(common_keywords, 
+                                              key=lambda x: keyword_frequency[x], 
+                                              reverse=True)[:15]
+            
+            # 3. IDENTIFY HIGH-DEMAND SKILLS (appear in multiple JDs)
+            high_demand_skills = [kw for kw, freq in keyword_frequency.items() 
+                                if freq >= len(job_descriptions) * 0.4]
+            result['high_demand_skills'] = sorted(set(high_demand_skills), 
+                                                 key=lambda x: keyword_frequency[x], 
+                                                 reverse=True)[:10]
+            
+            # 4. IDENTIFY FUTURE-LOOKING SKILLS
+            future_tech_keywords = {
+                'ai', 'artificial intelligence', 'machine learning', 'deep learning',
+                'kubernetes', 'cloud', 'microservices', 'devops', 'agile', 'scrum',
+                'automation', 'cicd', 'containerization', 'serverless', 'blockchain',
+                'data science', 'analytics', 'big data', 'distributed systems',
+                'react', 'angular', 'vue', 'typescript', 'python', 'golang'
+            }
+            
+            all_jd_text = ' '.join(job_descriptions).lower()
+            future_skills_found = [skill for skill in future_tech_keywords 
+                                  if skill in all_jd_text]
+            result['future_looking_skills'] = future_skills_found[:10]
+            
+            # 5. SKILL GAP REPORT
+            skill_gaps = []
+            for keyword in result['common_keywords']:
+                if keyword not in resume_text:
+                    # Check if it's truly a skill/technology
+                    if len(keyword) > 3 and keyword_frequency[keyword] >= min_frequency:
+                        skill_gaps.append({
+                            'skill': keyword,
+                            'appears_in_jds': keyword_frequency[keyword],
+                            'priority': 'HIGH' if keyword_frequency[keyword] >= len(job_descriptions) * 0.8 else 'MEDIUM'
+                        })
+            
+            result['skill_gap_report'] = sorted(skill_gaps, 
+                                               key=lambda x: x['appears_in_jds'], 
+                                               reverse=True)[:10]
+            
+            # 6. HIGH-VALUE SYNONYM LIST
+            high_value_synonyms = self._generate_high_value_synonyms(all_jd_text, resume_text)
+            result['high_value_synonyms'] = high_value_synonyms
+            
+            # 7. CAREER OPTIMIZATION SCORE
+            skills_in_resume = sum(1 for kw in result['high_demand_skills'] if kw in resume_text)
+            total_high_demand = len(result['high_demand_skills'])
+            
+            if total_high_demand > 0:
+                optimization_score = (skills_in_resume / total_high_demand) * 100
+                result['career_optimization_score'] = round(optimization_score, 2)
+            
+            # Add recommendations
+            if result['career_optimization_score'] >= 70:
+                result['recommendation'] = '✅ Strong alignment with career path - well positioned for target roles'
+            elif result['career_optimization_score'] >= 50:
+                result['recommendation'] = '⚠️ Moderate alignment - add missing high-demand skills to strengthen position'
+            else:
+                result['recommendation'] = '❌ Low alignment - focus on acquiring and highlighting key skills from gap report'
+                
+        except Exception as e:
+            result['error'] = f'Error in career path analysis: {str(e)}'
+        
+        return result
+    
+    def _generate_high_value_synonyms(self, aggregated_jds: str, resume_text: str) -> List[Dict]:
+        """Generate high-impact synonyms to integrate into resume"""
+        synonyms = []
+        
+        # High-value synonym mappings (JD terms → Resume-friendly alternatives)
+        synonym_mappings = {
+            'leadership': ['led teams', 'managed projects', 'directed initiatives', 'headed department'],
+            'development': ['engineered solutions', 'built systems', 'created applications', 'developed platforms'],
+            'collaboration': ['cross-functional teamwork', 'partnered with stakeholders', 'collaborated across teams'],
+            'innovation': ['drove innovation', 'pioneered solutions', 'implemented cutting-edge', 'introduced novel approaches'],
+            'optimization': ['streamlined processes', 'enhanced performance', 'improved efficiency', 'optimized workflows'],
+            'scalability': ['scaled systems', 'architected scalable solutions', 'designed for growth'],
+            'architecture': ['system design', 'solution architecture', 'technical architecture', 'platform design'],
+            'agile': ['agile methodologies', 'scrum practices', 'iterative development', 'sprint planning'],
+            'mentorship': ['mentored team members', 'coached developers', 'guided junior engineers'],
+            'strategy': ['strategic planning', 'roadmap development', 'vision setting', 'strategic initiatives']
+        }
+        
+        for concept, alternatives in synonym_mappings.items():
+            if concept in aggregated_jds:
+                # Check if concept or alternatives are missing from resume
+                has_concept = concept in resume_text
+                has_alternatives = any(alt.lower() in resume_text for alt in alternatives)
+                
+                if not has_concept and not has_alternatives:
+                    synonyms.append({
+                        'target_concept': concept.title(),
+                        'recommended_phrases': alternatives[:3],
+                        'impact': 'HIGH - appears frequently in target roles'
+                    })
+                elif has_concept and not has_alternatives:
+                    synonyms.append({
+                        'target_concept': concept.title(),
+                        'recommended_phrases': alternatives[:2],
+                        'impact': 'MEDIUM - use varied terminology to strengthen'
+                    })
+        
+        return synonyms[:10]  # Top 10 high-value synonyms

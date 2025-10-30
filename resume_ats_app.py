@@ -180,7 +180,6 @@ if st.session_state.mode != 'home':
         if st.button("💡 Resume Guide", use_container_width=True):
             st.session_state.mode = 'guide'
             st.rerun()
-    st.markdown("---")
 
 # ==================== HOME MODE ====================
 if st.session_state.mode == 'home':
