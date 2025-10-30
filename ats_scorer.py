@@ -5,6 +5,8 @@ Calculates ATS compatibility score for resumes
 
 from typing import Dict, List, Tuple
 import re
+from langchain_huggingface import HuggingFaceEmbeddings
+import numpy as np
 
 
 class ATSScorer:
@@ -36,6 +38,14 @@ class ATSScorer:
             'special_chars': r'[★●■□▪►]',  # Special bullets/symbols
             'multiple_columns': r'(.{20,})\s{10,}(.{20,})',  # Wide spacing (columns)
         }
+        
+        # Initialize embeddings model for semantic scoring
+        try:
+            self.embeddings = HuggingFaceEmbeddings(
+                model_name="sentence-transformers/all-MiniLM-L6-v2"
+            )
+        except:
+            self.embeddings = None
     
     def calculate_ats_score(self, parsed_resume: Dict, job_description: str = "") -> Dict:
         """
@@ -86,6 +96,9 @@ class ATSScorer:
         # Calculate Technical ATS Score
         technical_ats_score = self.calculate_technical_ats_score(parsed_resume, job_description)
         
+        # Calculate Semantic Score
+        semantic_score = self.calculate_semantic_score(parsed_resume, job_description)
+        
         return {
             'total_score': round(total_score),
             'grade': grade,
@@ -98,7 +111,8 @@ class ATSScorer:
                 'Skills': {'score': skills_score[0], 'max': 10, 'feedback': skills_score[1]},
                 'Length': {'score': length_score[0], 'max': 5, 'feedback': length_score[1]}
             },
-            'technical_ats_score': technical_ats_score
+            'technical_ats_score': technical_ats_score,
+            'semantic_score': semantic_score
         }
     
     def score_format(self, resume: Dict) -> Tuple[float, List[str]]:
@@ -347,3 +361,171 @@ class ATSScorer:
             result['parsing_quality'] = 'Poor - Resume may not parse correctly in ATS'
         
         return result
+    
+    def calculate_semantic_score(self, resume: Dict, job_description: str = "") -> Dict:
+        """
+        Calculate Semantic Score - UNIQUE FEATURE
+        
+        Measures context & equivalence between resume and JD using LLM embeddings.
+        Recognizes synonyms and inferred skills (e.g., "Used Pandas" matches "Data Analysis").
+        Validates capability, not just word count.
+        
+        Args:
+            resume: Parsed resume data
+            job_description: Job description text
+            
+        Returns:
+            Dictionary with semantic matching details
+        """
+        result = {
+            'semantic_similarity_score': 0.0,
+            'context_match_level': 'None',
+            'inferred_skills': [],
+            'synonym_matches': [],
+            'capability_validation': 'Not Available'
+        }
+        
+        if not job_description or not self.embeddings:
+            result['capability_validation'] = 'No job description provided or embeddings unavailable'
+            return result
+        
+        resume_text = resume.get('text', '')
+        if not resume_text:
+            return result
+        
+        try:
+            # Split texts into manageable chunks (semantic sections)
+            resume_chunks = self._extract_semantic_chunks(resume_text)
+            jd_chunks = self._extract_semantic_chunks(job_description)
+            
+            # Generate embeddings
+            resume_embeddings = [self.embeddings.embed_query(chunk) for chunk in resume_chunks]
+            jd_embeddings = [self.embeddings.embed_query(chunk) for chunk in jd_chunks]
+            
+            # Calculate cosine similarity between all pairs
+            similarities = []
+            for r_emb in resume_embeddings:
+                for jd_emb in jd_embeddings:
+                    similarity = self._cosine_similarity(r_emb, jd_emb)
+                    similarities.append(similarity)
+            
+            # Overall semantic similarity (average of top matches)
+            if similarities:
+                top_similarities = sorted(similarities, reverse=True)[:10]
+                avg_similarity = np.mean(top_similarities)
+                result['semantic_similarity_score'] = round(float(avg_similarity * 100), 2)
+                
+                # Context match level
+                if avg_similarity >= 0.75:
+                    result['context_match_level'] = 'High - Strong semantic alignment'
+                elif avg_similarity >= 0.60:
+                    result['context_match_level'] = 'Medium - Good contextual match'
+                elif avg_similarity >= 0.45:
+                    result['context_match_level'] = 'Low - Some relevance detected'
+                else:
+                    result['context_match_level'] = 'Very Low - Weak alignment'
+            
+            # Detect inferred skills and synonym matches
+            result['inferred_skills'] = self._detect_inferred_skills(resume_text, job_description)
+            result['synonym_matches'] = self._detect_synonym_matches(resume_text, job_description)
+            
+            # Capability validation
+            if result['semantic_similarity_score'] >= 70:
+                result['capability_validation'] = '✅ HIGH - Strong capability match, validates skills beyond keywords'
+            elif result['semantic_similarity_score'] >= 50:
+                result['capability_validation'] = '⚠️ MEDIUM - Moderate capability match, some relevant experience'
+            else:
+                result['capability_validation'] = '❌ LOW - Limited capability match, consider adding relevant experience'
+                
+        except Exception as e:
+            result['capability_validation'] = f'Error calculating semantic score: {str(e)}'
+        
+        return result
+    
+    def _extract_semantic_chunks(self, text: str) -> List[str]:
+        """Extract meaningful semantic chunks from text"""
+        # Split by sentences or paragraphs
+        chunks = []
+        sentences = re.split(r'[.!?]\s+', text)
+        
+        current_chunk = ""
+        for sentence in sentences:
+            if len(current_chunk) + len(sentence) < 500:  # Max chunk size
+                current_chunk += sentence + ". "
+            else:
+                if current_chunk:
+                    chunks.append(current_chunk.strip())
+                current_chunk = sentence + ". "
+        
+        if current_chunk:
+            chunks.append(current_chunk.strip())
+        
+        return chunks if chunks else [text[:500]]  # At least one chunk
+    
+    def _cosine_similarity(self, vec1: List[float], vec2: List[float]) -> float:
+        """Calculate cosine similarity between two vectors"""
+        vec1 = np.array(vec1)
+        vec2 = np.array(vec2)
+        
+        dot_product = np.dot(vec1, vec2)
+        norm1 = np.linalg.norm(vec1)
+        norm2 = np.linalg.norm(vec2)
+        
+        if norm1 == 0 or norm2 == 0:
+            return 0.0
+        
+        return dot_product / (norm1 * norm2)
+    
+    def _detect_inferred_skills(self, resume_text: str, job_description: str) -> List[str]:
+        """Detect inferred skills (e.g., 'pandas' implies 'data analysis')"""
+        inferred = []
+        resume_lower = resume_text.lower()
+        jd_lower = job_description.lower()
+        
+        # Skill inference mappings
+        skill_inferences = {
+            'pandas': 'Data Analysis',
+            'numpy': 'Numerical Computing',
+            'scikit-learn': 'Machine Learning',
+            'tensorflow': 'Deep Learning',
+            'pytorch': 'Deep Learning',
+            'sql': 'Database Management',
+            'postgresql': 'Database Management',
+            'docker': 'Containerization',
+            'kubernetes': 'Container Orchestration',
+            'aws': 'Cloud Computing',
+            'azure': 'Cloud Computing',
+            'git': 'Version Control',
+            'jenkins': 'CI/CD',
+            'react': 'Frontend Development',
+            'node.js': 'Backend Development'
+        }
+        
+        for tool, skill in skill_inferences.items():
+            if tool in resume_lower and skill.lower() in jd_lower:
+                inferred.append(f"'{tool.title()}' → infers '{skill}'")
+        
+        return inferred[:5]  # Top 5
+    
+    def _detect_synonym_matches(self, resume_text: str, job_description: str) -> List[str]:
+        """Detect synonym matches between resume and JD"""
+        matches = []
+        resume_lower = resume_text.lower()
+        jd_lower = job_description.lower()
+        
+        # Common synonym groups
+        synonyms = {
+            'leadership': ['led', 'managed', 'directed', 'supervised', 'headed'],
+            'development': ['built', 'created', 'developed', 'engineered', 'designed'],
+            'analysis': ['analyzed', 'evaluated', 'assessed', 'examined', 'studied'],
+            'collaboration': ['collaborated', 'partnered', 'worked with', 'teamed', 'coordinated'],
+            'improvement': ['improved', 'enhanced', 'optimized', 'streamlined', 'increased']
+        }
+        
+        for concept, synonym_list in synonyms.items():
+            if concept in jd_lower:
+                found_synonyms = [syn for syn in synonym_list if syn in resume_lower]
+                if found_synonyms:
+                    matches.append(f"JD: '{concept}' ↔ Resume: '{found_synonyms[0]}'")
+        
+        return matches[:5]  # Top 5
