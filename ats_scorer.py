@@ -21,6 +21,21 @@ class ATSScorer:
             'leadership', 'communication', 'teamwork', 'problem-solving',
             'analytical', 'project management', 'collaboration'
         ]
+        
+        # Must-have skills for different roles (expandable)
+        self.must_have_skills = {
+            'software engineer': ['programming', 'coding', 'software', 'development'],
+            'data scientist': ['data', 'analysis', 'statistics', 'machine learning'],
+            'project manager': ['project', 'management', 'planning', 'coordination'],
+            'default': ['experience', 'skills']
+        }
+        
+        # Formatting error patterns
+        self.formatting_errors = {
+            'tables': r'\|[\s\S]*\|',  # Markdown/text tables
+            'special_chars': r'[★●■□▪►]',  # Special bullets/symbols
+            'multiple_columns': r'(.{20,})\s{10,}(.{20,})',  # Wide spacing (columns)
+        }
     
     def calculate_ats_score(self, parsed_resume: Dict, job_description: str = "") -> Dict:
         """
@@ -68,6 +83,9 @@ class ATSScorer:
         else:
             grade = "Needs Improvement"
         
+        # Calculate Technical ATS Score
+        technical_ats_score = self.calculate_technical_ats_score(parsed_resume, job_description)
+        
         return {
             'total_score': round(total_score),
             'grade': grade,
@@ -79,7 +97,8 @@ class ATSScorer:
                 'Experience': {'score': experience_score[0], 'max': 15, 'feedback': experience_score[1]},
                 'Skills': {'score': skills_score[0], 'max': 10, 'feedback': skills_score[1]},
                 'Length': {'score': length_score[0], 'max': 5, 'feedback': length_score[1]}
-            }
+            },
+            'technical_ats_score': technical_ats_score
         }
     
     def score_format(self, resume: Dict) -> Tuple[float, List[str]]:
@@ -231,3 +250,100 @@ class ATSScorer:
             feedback.append(f"✗ Resume length needs adjustment ({word_count} words)")
         
         return score, feedback
+    
+    def calculate_technical_ats_score(self, resume: Dict, job_description: str = "") -> Dict:
+        """
+        Calculate Technical (ATS) Score - UNIQUE FEATURE
+        
+        Measures:
+        1. Parsing & Keywords: Explicit keyword overlap with job description
+        2. Boolean checks: Must-have skills presence
+        3. Formatting errors: Tables, non-standard headings, special characters
+        
+        Args:
+            resume: Parsed resume data
+            job_description: Job description text for keyword matching
+            
+        Returns:
+            Dictionary with technical score details
+        """
+        text = resume.get('text', '').lower()
+        result = {
+            'keyword_overlap_percentage': 0,
+            'must_have_skills_found': [],
+            'must_have_skills_missing': [],
+            'formatting_errors': [],
+            'formatting_clean': True,
+            'parsing_quality': 'Good'
+        }
+        
+        # 1. KEYWORD OVERLAP ANALYSIS
+        if job_description:
+            jd_lower = job_description.lower()
+            # Extract meaningful words (filter common words)
+            common_words = {'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by'}
+            jd_keywords = set([word for word in re.findall(r'\b\w+\b', jd_lower) if len(word) > 3 and word not in common_words])
+            resume_keywords = set([word for word in re.findall(r'\b\w+\b', text) if len(word) > 3 and word not in common_words])
+            
+            if jd_keywords:
+                overlap = jd_keywords.intersection(resume_keywords)
+                overlap_percentage = (len(overlap) / len(jd_keywords)) * 100
+                result['keyword_overlap_percentage'] = round(overlap_percentage, 2)
+                result['matched_keywords'] = list(overlap)[:10]  # Top 10 matches
+        
+        # 2. BOOLEAN CHECK FOR MUST-HAVE SKILLS
+        # Detect job role from text or use default
+        role = 'default'
+        for job_role in self.must_have_skills.keys():
+            if job_role in text or (job_description and job_role in job_description.lower()):
+                role = job_role
+                break
+        
+        must_have = self.must_have_skills.get(role, self.must_have_skills['default'])
+        
+        for skill in must_have:
+            if skill in text:
+                result['must_have_skills_found'].append(skill)
+            else:
+                result['must_have_skills_missing'].append(skill)
+        
+        # 3. FORMATTING ERROR DETECTION
+        original_text = resume.get('text', '')
+        
+        # Check for tables
+        if re.search(self.formatting_errors['tables'], original_text):
+            result['formatting_errors'].append('❌ Tables detected (ATS may not parse correctly)')
+            result['formatting_clean'] = False
+        
+        # Check for special characters/bullets
+        if re.search(self.formatting_errors['special_chars'], original_text):
+            result['formatting_errors'].append('❌ Special characters/bullets detected (use standard bullets: -, •)')
+            result['formatting_clean'] = False
+        
+        # Check for multiple columns (wide spacing)
+        if re.search(self.formatting_errors['multiple_columns'], original_text):
+            result['formatting_errors'].append('❌ Multiple columns detected (use single-column layout)')
+            result['formatting_clean'] = False
+        
+        # Check for non-standard section headings
+        sections = resume.get('sections', {})
+        if not any(sections.values()):
+            result['formatting_errors'].append('❌ Non-standard section headings (use: Experience, Education, Skills)')
+            result['formatting_clean'] = False
+        
+        if not result['formatting_errors']:
+            result['formatting_errors'].append('✅ No formatting errors detected')
+        
+        # 4. PARSING QUALITY ASSESSMENT
+        word_count = resume.get('word_count', 0)
+        has_email = bool(resume.get('email'))
+        has_sections = any(sections.values())
+        
+        if word_count > 200 and has_email and has_sections:
+            result['parsing_quality'] = 'Excellent'
+        elif word_count > 100 and (has_email or has_sections):
+            result['parsing_quality'] = 'Good'
+        else:
+            result['parsing_quality'] = 'Poor - Resume may not parse correctly in ATS'
+        
+        return result

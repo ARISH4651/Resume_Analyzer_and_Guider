@@ -198,7 +198,7 @@ if st.session_state.mode == 'home':
         # Analyze Resume card
         st.markdown("""
         <div class="feature-card">
-            <h3>📊 Analyze Resume</h3>
+            <h3> Analyze Resume</h3>
             <p>Upload your resume and get:</p>
             <ul>
                 <li>ATS Score (0-100)</li>
@@ -211,7 +211,7 @@ if st.session_state.mode == 'home':
         """, unsafe_allow_html=True)
         
         # Button below card
-        if st.button("📊 Analyze Resume", key="analyze_btn", use_container_width=True, type="primary"):
+        if st.button("Analyze Resume", key="analyze_btn", use_container_width=True, type="primary"):
             st.session_state.mode = 'analyze'
             st.rerun()
     
@@ -219,7 +219,7 @@ if st.session_state.mode == 'home':
         # Resume Guide card
         st.markdown("""
         <div class="feature-card">
-            <h3>💡 Resume Guide</h3>
+            <h3>Resume Guide</h3>
             <p>Get expert guidance on:</p>
             <ul>
                 <li>Creating ATS-friendly resumes</li>
@@ -232,13 +232,13 @@ if st.session_state.mode == 'home':
         """, unsafe_allow_html=True)
         
         # Button below card
-        if st.button("💡 Resume Guide", key="guide_btn", use_container_width=True, type="primary"):
+        if st.button(" Resume Guide", key="guide_btn", use_container_width=True, type="primary"):
             st.session_state.mode = 'guide'
             st.rerun()
 
 # ==================== ANALYZE MODE ====================
 elif st.session_state.mode == 'analyze':
-    st.header("📊 Resume ATS Analyzer")
+    st.header(" Resume ATS Analyzer")
     
     # File upload
     uploaded_resume = st.file_uploader(
@@ -248,7 +248,7 @@ elif st.session_state.mode == 'analyze':
     )
     
     # Optional job description
-    with st.expander("📝 Add Job Description (Optional - for better keyword matching)"):
+    with st.expander(" Add Job Description (Optional - for better keyword matching)"):
         job_description = st.text_area(
             "Paste the job description here",
             height=150,
@@ -256,7 +256,7 @@ elif st.session_state.mode == 'analyze':
         )
     
     if uploaded_resume:
-        if st.button("🔍 Analyze Resume", type="primary"):
+        if st.button(" Analyze Resume", type="primary"):
             with st.spinner("Analyzing your resume..."):
                 # Save uploaded file temporarily
                 with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(uploaded_resume.name)[1]) as tmp_file:
@@ -281,7 +281,7 @@ elif st.session_state.mode == 'analyze':
                         }
                         
                         # Display results
-                        st.success("✅ Analysis Complete!")
+                        st.success(" Analysis Complete!...")
                         
                         # Score display
                         col1, col2, col3 = st.columns([1, 2, 1])
@@ -298,7 +298,7 @@ elif st.session_state.mode == 'analyze':
                         st.markdown("---")
                         
                         # Detailed feedback
-                        st.subheader("📋 Detailed Analysis")
+                        st.subheader("Detailed Analysis..")
                         
                         for category, details in ats_result['detailed_feedback'].items():
                             with st.expander(f"{category} - {details['score']}/{details['max']} points"):
@@ -313,7 +313,7 @@ elif st.session_state.mode == 'analyze':
                         st.markdown("---")
                         
                         # Key insights
-                        st.subheader("🎯 Key Insights")
+                        st.subheader(" Key Insights...")
                         col1, col2 = st.columns(2)
                         
                         with col1:
@@ -329,15 +329,15 @@ elif st.session_state.mode == 'analyze':
                         
                         # Recommendations
                         st.markdown("---")
-                        st.subheader("💡 Recommendations")
+                        st.subheader(" Recommendations...")
                         
                         recommendations = []
                         if ats_result['total_score'] < 70:
                             recommendations.append("🔴 **Critical**: Your resume needs significant improvements to pass ATS screening.")
                         if not parsed.get('email'):
-                            recommendations.append("📧 Add a professional email address")
+                            recommendations.append("Add a professional email address")
                         if not parsed.get('has_quantifiable_results'):
-                            recommendations.append("📊 Add quantifiable achievements (e.g., 'Increased sales by 25%')")
+                            recommendations.append("Add quantifiable achievements (e.g., 'Increased sales by 25%')")
                         if parsed.get('action_verb_count', 0) < 5:
                             recommendations.append("💪 Use more action verbs (achieved, improved, developed, etc.)")
                         
@@ -345,7 +345,7 @@ elif st.session_state.mode == 'analyze':
                             for rec in recommendations:
                                 st.warning(rec)
                         else:
-                            st.success("🎉 Great job! Your resume is well-optimized for ATS!")
+                            st.success("Great job! Your resume is well-optimized for ATS!")
                         
                 finally:
                     # Cleanup temp file
