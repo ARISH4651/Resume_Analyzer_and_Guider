@@ -161,16 +161,16 @@ st.markdown("""
     /* Input box styling - ChatGPT style */
     .stTextInput > div > div > input {
         background-color: black;
-        border: none;
+        border: 1px solid white;
         border-radius: 26px;
         padding: 14px 50px 14px 50px;
-        color: black;
+        color: white;
         font-size: 15px;
         transition: all 0.2s ease;
     }
     
     .stTextInput > div > div > input:focus {
-        border: none;
+        border: 1px solid white;
         outline: none;
         box-shadow: none;
     }
