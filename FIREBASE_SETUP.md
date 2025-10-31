@@ -1,7 +1,7 @@
 # Firebase Setup for Resume ATS Bot
 
 ## Overview
-This guide walks you through setting up Firebase Storage for the Resume ATS knowledge base.
+<!--This guide walks you through setting up Firebase Storage for the Resume ATS knowledge base.
 
 ## Step 1: Create Firebase Project
 

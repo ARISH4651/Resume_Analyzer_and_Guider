@@ -8,14 +8,23 @@ import tempfile
 # Set working directory
 working_dir = os.getcwd()
 
+# Cache heavy model loading
+@st.cache_resource
+def get_parser():
+    return ResumeParser()
+
+@st.cache_resource
+def get_scorer():
+    return ATSScorer()
+
 # Initialize components
-parser = ResumeParser()
-scorer = ATSScorer()
+parser = get_parser()
+scorer = get_scorer()
 
 # Page config
 st.set_page_config(
     page_title="Resume ATS Analyzer & Guide",
-    page_icon="📄",
+    page_icon=" ",
     layout="centered"
 )
 
@@ -39,6 +48,7 @@ st.markdown("""
         margin: 0 auto;
         height: 100vh;
         overflow: hidden;
+        padding: 0 1rem;
     }
     
     /* Center the title */
@@ -46,6 +56,91 @@ st.markdown("""
         text-align: center;
         font-size: 2rem !important;
         margin-bottom: 2rem;
+    }
+    
+    /* Mobile responsive */
+    @media (max-width: 768px) {
+        .stApp {
+            max-width: 100%;
+            padding: 0 0.5rem;
+        }
+        
+        h1 {
+            font-size: 1.5rem !important;
+            margin-bottom: 1rem;
+        }
+        
+        .welcome-title {
+            font-size: 1.8rem !important;
+        }
+        
+        .feature-card {
+            padding: 1rem;
+            height: auto;
+            min-height: 200px;
+        }
+        
+        .chat-input-container {
+            max-width: 100%;
+        }
+        
+        .stTextInput > div > div > input {
+            padding: 12px 40px 12px 20px;
+            font-size: 14px;
+        }
+        
+        .user-message, .assistant-message {
+            padding: 0.75rem;
+            font-size: 14px;
+        }
+        
+        .stButton > button {
+            padding: 0.4rem 1rem;
+            font-size: 14px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .stApp {
+            padding: 0 0.25rem;
+        }
+        
+        h1 {
+            font-size: 1.25rem !important;
+            margin-bottom: 0.5rem;
+        }
+        
+        .welcome-title {
+            font-size: 1.5rem !important;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-card {
+            padding: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .stTextInput > div > div > input {
+            padding: 10px 35px 10px 15px;
+            font-size: 13px;
+            border-radius: 20px;
+        }
+        
+        .user-message, .assistant-message {
+            padding: 0.5rem;
+            font-size: 13px;
+        }
+        
+        .stButton > button {
+            padding: 0.35rem 0.75rem;
+            font-size: 13px;
+        }
+        
+        [data-testid="column"]:last-child .stButton > button {
+            width: 32px;
+            height: 32px;
+            font-size: 16px;
+        }
     }
     
     /* Chat message styling */
@@ -63,13 +158,25 @@ st.markdown("""
         margin-bottom: 1rem;
     }
     
-    /* Input box styling */
+    /* Input box styling - ChatGPT style */
     .stTextInput > div > div > input {
-        background-color: #2d2d2d;
-        border: 1px solid #3d3d3d;
-        border-radius: 12px;
-        padding: 12px 16px;
-        color: white;
+        background-color: black;
+        border: none;
+        border-radius: 26px;
+        padding: 14px 50px 14px 50px;
+        color: black;
+        font-size: 15px;
+        transition: all 0.2s ease;
+    }
+    
+    .stTextInput > div > div > input:focus {
+        border: none;
+        outline: none;
+        box-shadow: none;
+    }
+    
+    .stTextInput > div > div > input::placeholder {
+        color: #8e8ea0;
     }
     
     /* Button styling */
@@ -85,6 +192,45 @@ st.markdown("""
     .stButton > button:hover {
         background-color: #2d2d2d;
         border-color: #5d5d5d;
+    }
+    
+    /* Chat input wrapper styling */
+    .chat-input-container {
+        position: relative;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    /* Plus button on left */
+    .plus-button {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #8e8ea0;
+        font-size: 20px;
+        cursor: pointer;
+        z-index: 10;
+    }
+    
+    /* Send button on right - circular */
+    [data-testid="column"]:last-child .stButton > button {
+        background-color: #2d2d2d;
+        border: none;
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+    }
+    
+    [data-testid="column"]:last-child .stButton > button:hover {
+        background-color: #3d3d3d;
     }
     
     /* Welcome message styling */
@@ -169,15 +315,15 @@ if st.session_state.mode != 'home':
     # Mode selection buttons at top
     col1, col2, col3 = st.columns([1, 1, 1])
     with col1:
-        if st.button("🏠 Home", use_container_width=True):
+        if st.button(" Home ", use_container_width=True):
             st.session_state.mode = 'home'
             st.rerun()
     with col2:
-        if st.button("📊 Analyze Resume", use_container_width=True):
+        if st.button(" Analyze Resume", use_container_width=True):
             st.session_state.mode = 'analyze'
             st.rerun()
     with col3:
-        if st.button("💡 Resume Guide", use_container_width=True):
+        if st.button(" Resume Guide", use_container_width=True):
             st.session_state.mode = 'guide'
             st.rerun()
 
@@ -338,7 +484,7 @@ elif st.session_state.mode == 'analyze':
                         if not parsed.get('has_quantifiable_results'):
                             recommendations.append("Add quantifiable achievements (e.g., 'Increased sales by 25%')")
                         if parsed.get('action_verb_count', 0) < 5:
-                            recommendations.append("💪 Use more action verbs (achieved, improved, developed, etc.)")
+                            recommendations.append(" Use more action verbs (achieved, improved, developed, etc.)")
                         
                         if recommendations:
                             for rec in recommendations:
@@ -402,16 +548,18 @@ elif st.session_state.mode == 'guide':
     # Chat input at bottom
     st.markdown("<br><br>", unsafe_allow_html=True)
     
-    col1, col2, col3 = st.columns([1, 8, 1])
-    with col2:
+    st.markdown('<div class="chat-input-container">', unsafe_allow_html=True)
+    col1, col2 = st.columns([8, 0.5])
+    with col1:
         user_question = st.text_input(
             "",
             key=f"guide_input_{len(st.session_state.chat_history)}",
-            placeholder="Ask anything...",
+            placeholder="Ask anything",
             label_visibility="collapsed"
         )
-    with col3:
+    with col2:
         send_clicked = st.button("↑", key=f"send_{len(st.session_state.chat_history)}")
+    st.markdown('</div>', unsafe_allow_html=True)
     
     if (send_clicked or user_question) and user_question.strip():
         # Add user question

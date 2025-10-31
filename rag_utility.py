@@ -19,14 +19,24 @@ GROQ_API_KEY = config_data["GROQ_API_KEY"]
 os.environ["GROQ_API_KEY"] = GROQ_API_KEY
 
 
-# loading the embedding model
-embedding = HuggingFaceEmbeddings()
+# Lazy loading for embedding model and llm
+_embedding = None
+_llm = None
 
-# load the llm form groq
-llm = ChatGroq(
-    model="llama-3.1-8b-instant",
-    temperature=0
-)
+def get_embedding():
+    global _embedding
+    if _embedding is None:
+        _embedding = HuggingFaceEmbeddings()
+    return _embedding
+
+def get_llm():
+    global _llm
+    if _llm is None:
+        _llm = ChatGroq(
+            model="llama-3.1-8b-instant",
+            temperature=0
+        )
+    return _llm
 
 
 def process_document_to_chroma_db(file_name):
@@ -68,7 +78,7 @@ def process_document_to_chroma_db(file_name):
     try:
         vectordb = Chroma(
             persist_directory=vectorstore_path,
-            embedding_function=embedding,
+            embedding_function=get_embedding(),
             collection_name=collection_name
         )
         vectordb.add_documents(texts)
@@ -77,7 +87,7 @@ def process_document_to_chroma_db(file_name):
         print(f"Creating new ChromaDB collection for {file_name}")
         vectordb = Chroma.from_documents(
             documents=texts,
-            embedding=embedding,
+            embedding=get_embedding(),
             persist_directory=vectorstore_path,
             collection_name=collection_name
         )
@@ -113,7 +123,7 @@ def answer_question(user_question):
     
     vectordb = Chroma(
         persist_directory=vectorstore_path,
-        embedding_function=embedding,
+        embedding_function=get_embedding(),
         collection_name=collection_name
     )
     
@@ -131,7 +141,7 @@ def answer_question(user_question):
 
     # create a chain to answer user question using Groq
     qa_chain = RetrievalQA.from_chain_type(
-        llm=llm,
+        llm=get_llm(),
         chain_type="stuff",
         retriever=retriever,
         return_source_documents=True
