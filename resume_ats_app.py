@@ -255,7 +255,7 @@ if 'analyzed_resume' not in st.session_state:
 # Title (hidden by CSS, but used for browser tab)
 if st.session_state.mode != 'home':
     # Mode selection buttons at top
-    col1, col2, col3 = st.columns([1, 1, 1])
+    col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
     with col1:
         if st.button(" Home ", use_container_width=True):
             st.session_state.mode = 'home'
@@ -267,6 +267,10 @@ if st.session_state.mode != 'home':
     with col3:
         if st.button(" Resume Guide", use_container_width=True):
             st.session_state.mode = 'guide'
+            st.rerun()
+    with col4:
+        if st.button(" Enhance Resume", use_container_width=True):
+            st.session_state.mode = 'enhance'
             st.rerun()
 
 # ==================== HOME MODE ====================
@@ -447,6 +451,12 @@ elif st.session_state.mode == 'analyze':
                         else:
                             st.success("Great job! Your resume is well-optimized for ATS!")
                         
+                        # Enhance Resume button - always show
+                        st.markdown("---")
+                        if st.button("🚀 Enhance Resume", type="primary"):
+                            st.session_state.mode = 'enhance'
+                            st.rerun()
+                        
                 finally:
                     # Cleanup temp file
                     if os.path.exists(tmp_path):
@@ -536,3 +546,92 @@ elif st.session_state.mode == 'guide':
             st.session_state.chat_history.append({'role': 'assistant', 'content': answer})
         
         st.rerun()
+
+# ==================== ENHANCE MODE ====================
+elif st.session_state.mode == 'enhance':
+    st.header("🚀 Enhance Your Resume")
+    
+    # Check if we have analyzed resume data
+    if not st.session_state.analyzed_resume:
+        st.warning("Please analyze your resume first before enhancing it.")
+        if st.button("Go to Analyze"):
+            st.session_state.mode = 'analyze'
+            st.rerun()
+    else:
+        ats_result = st.session_state.analyzed_resume['ats_result']
+        parsed = st.session_state.analyzed_resume['parsed']
+        
+        # Show current score
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            st.metric(
+                label="Current ATS Score",
+                value=f"{ats_result['total_score']}/100",
+                delta=f"{ats_result['grade']}"
+            )
+        
+        st.markdown("---")
+        
+        # Enhancement sections
+        st.subheader("📝 Resume Enhancement Guide")
+        st.write("Fix the following issues to improve your ATS score:")
+        
+        # Collect all issues that need fixing
+        issues_to_fix = []
+        
+        # Check each category for issues
+        for category, details in ats_result['detailed_feedback'].items():
+            for feedback in details['feedback']:
+                if '✗' in feedback or '⚠' in feedback:
+                    issues_to_fix.append({
+                        'category': category,
+                        'issue': feedback,
+                        'severity': 'critical' if '✗' in feedback else 'warning'
+                    })
+        
+        if not issues_to_fix:
+            st.success("Your resume is already well-optimized!")
+        else:
+            # Group issues by severity
+            critical_issues = [i for i in issues_to_fix if i['severity'] == 'critical']
+            warning_issues = [i for i in issues_to_fix if i['severity'] == 'warning']
+            
+            # Display critical issues
+            if critical_issues:
+                st.error("### 🔴 Critical Issues (Fix these first)")
+                for idx, issue in enumerate(critical_issues, 1):
+                    with st.expander(f"{idx}. {issue['category']}", expanded=True):
+                        st.write(issue['issue'])
+                        st.text_area(
+                            "How will you fix this?",
+                            key=f"fix_critical_{idx}",
+                            placeholder="Enter your corrected text or describe how you'll fix this issue...",
+                            height=100
+                        )
+            
+            # Display warning issues
+            if warning_issues:
+                st.warning("### ⚠️ Improvements Recommended")
+                for idx, issue in enumerate(warning_issues, 1):
+                    with st.expander(f"{idx}. {issue['category']}"):
+                        st.write(issue['issue'])
+                        st.text_area(
+                            "How will you improve this?",
+                            key=f"fix_warning_{idx}",
+                            placeholder="Enter your improved text...",
+                            height=100
+                        )
+        
+        st.markdown("---")
+        
+        # Action buttons
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("⬅️ Back to Analysis", use_container_width=True):
+                st.session_state.mode = 'analyze'
+                st.rerun()
+        with col2:
+            if st.button("✅ Mark as Complete", type="primary", use_container_width=True):
+                st.success("Great! Make sure to update your resume with these improvements.")
+                st.balloons()
+                st.info("Tip: Re-analyze your resume after making changes to see your improved score!")
