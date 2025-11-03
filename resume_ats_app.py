@@ -11,297 +11,239 @@ working_dir = os.getcwd()
 # Cache heavy model loading
 @st.cache_resource
 def get_parser():
-    return ResumeParser()
+    # Placeholder for actual model loading
+    # Replace with your actual initialization logic if needed
+    try:
+        return ResumeParser()
+    except Exception as e:
+        st.error(f"Error initializing ResumeParser: {e}")
+        return None
 
 @st.cache_resource
 def get_scorer():
-    return ATSScorer()
+    # Placeholder for actual model loading
+    # Replace with your actual initialization logic if needed
+    try:
+        return ATSScorer()
+    except Exception as e:
+        st.error(f"Error initializing ATSScorer: {e}")
+        return None
 
-# Initialize components
+# Load models
 parser = get_parser()
 scorer = get_scorer()
 
-# Page config
-st.set_page_config(
-    page_title="Resume ATS Analyzer & Guide",
-    page_icon=" ",
-    layout="centered"
-)
-
-# Custom CSS for ChatGPT-like interface
+# Apply minimal CSS for clean UI
 st.markdown("""
 <style>
-    /* Hide default Streamlit elements */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-    
-    /* Remove scrollbars */
-    html, body, [data-testid="stAppViewContainer"] {
-        overflow: hidden !important;
-        height: 100vh !important;
-    }
-    
-    /* Main container styling */
-    .stApp {
-        max-width: 900px;
-        margin: 0 auto;
-        height: 100vh;
-        overflow: hidden;
-        padding: 0 1rem;
-    }
-    
-    /* Center the title */
-    h1 {
-        text-align: center;
-        font-size: 2rem !important;
-        margin-bottom: 2rem;
-    }
-    
-    /* Mobile responsive */
-    @media (max-width: 768px) {
-        .stApp {
-            max-width: 100%;
-            padding: 0 0.5rem;
-        }
-        
-        h1 {
-            font-size: 1.5rem !important;
-            margin-bottom: 1rem;
-        }
-        
-        .welcome-title {
-            font-size: 1.8rem !important;
-        }
-        
-        .feature-card {
-            padding: 1rem;
-            height: auto;
-            min-height: 200px;
-        }
-        
-        .chat-input-container {
-            max-width: 100%;
-        }
-        
-        .stTextInput > div > div > input {
-            padding: 12px 40px 12px 20px;
-            font-size: 14px;
-        }
-        
-        .user-message, .assistant-message {
-            padding: 0.75rem;
-            font-size: 14px;
-        }
-        
-        .stButton > button {
-            padding: 0.4rem 1rem;
-            font-size: 14px;
-        }
-    }
-    
-    @media (max-width: 480px) {
-        .stApp {
-            padding: 0 0.25rem;
-        }
-        
-        h1 {
-            font-size: 1.25rem !important;
-            margin-bottom: 0.5rem;
-        }
-        
-        .welcome-title {
-            font-size: 1.5rem !important;
-            margin-bottom: 1rem;
-        }
-        
-        .feature-card {
-            padding: 0.75rem;
-            margin-bottom: 0.75rem;
-        }
-        
-        .stTextInput > div > div > input {
-            padding: 10px 35px 10px 15px;
-            font-size: 13px;
-            border-radius: 20px;
-        }
-        
-        .user-message, .assistant-message {
-            padding: 0.5rem;
-            font-size: 13px;
-        }
-        
-        .stButton > button {
-            padding: 0.35rem 0.75rem;
-            font-size: 13px;
-        }
-        
-        [data-testid="column"]:last-child .stButton > button {
-            width: 32px;
-            height: 32px;
-            font-size: 16px;
-        }
-    }
-    
-    /* Chat message styling */
-    .user-message {
-        background-color: #2d2d2d;
-        padding: 1rem;
-        border-radius: 10px;
-        margin-bottom: 1rem;
-    }
-    
-    .assistant-message {
-        background-color: #1e1e1e;
-        padding: 1rem;
-        border-radius: 10px;
-        margin-bottom: 1rem;
-    }
-    
-    /* Input box styling - ChatGPT style */
-    .stTextInput > div > div > input {
-        background-color: black;
-        border: 1px solid white;
-        border-radius: 26px;
-        padding: 14px 50px 14px 50px;
-        color: white;
-        font-size: 15px;
-        transition: all 0.2s ease;
-    }
-    
-    .stTextInput > div > div > input:focus {
-        border: 1px solid white;
-        outline: none;
-        box-shadow: none;
-    }
-    
-    .stTextInput > div > div > input::placeholder {
-        color: #8e8ea0;
-    }
-    
-    /* Button styling */
-    .stButton > button {
-        background-color: transparent;
-        border: 1px solid #3d3d3d;
-        border-radius: 10px;
-        color: white;
-        padding: 0.5rem 1.5rem;
-        transition: all 0.3s ease;
-    }
-    
-    .stButton > button:hover {
-        background-color: #2d2d2d;
-        border-color: #5d5d5d;
-    }
-    
-    /* Chat input wrapper styling */
-    .chat-input-container {
-        position: relative;
-        max-width: 800px;
-        margin: 0 auto;
-    }
-    
-    /* Plus button on left */
-    .plus-button {
-        position: absolute;
-        left: 15px;
-        top: 50%;
-        transform: translateY(-50%);
-        background: none;
-        border: none;
-        color: #8e8ea0;
-        font-size: 20px;
-        cursor: pointer;
-        z-index: 10;
-    }
-    
-    /* Send button on right - circular */
-    [data-testid="column"]:last-child .stButton > button {
-        background-color: #2d2d2d;
-        border: none;
-        border-radius: 50%;
-        width: 36px;
-        height: 36px;
-        padding: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 18px;
-    }
-    
-    [data-testid="column"]:last-child .stButton > button:hover {
-        background-color: #3d3d3d;
-    }
-    
-    /* Welcome message styling */
-    .welcome-container {
-        text-align: center;
-        padding: 2rem 0 1rem 0;
-    }
-    
-    .welcome-title {
-        font-size: 2.5rem;
-        font-weight: 600;
-        margin-bottom: 1.5rem;
-    }
-    
-    /* Top navigation buttons */
-    .top-nav-buttons {
-        position: absolute;
-        top: 1rem;
-        left: 1rem;
-        display: flex;
-        gap: 0.5rem;
-    }
-    
-    /* Feature card styling */
-    .feature-card {
-        background-color: #1e1e1e;
-        padding: 1.5rem;
-        border-radius: 12px;
-        border: 1px solid #3d3d3d;
-        margin-bottom: 1rem;
-        height: 280px;
-    }
-    
-    .feature-card h3 {
-        margin-top: 0;
-        margin-bottom: 1rem;
-    }
-    
-    .feature-card ul {
-        margin-bottom: 0;
-    }
-    
-    /* Hide column dividers and gaps */
-    [data-testid="stVerticalBlock"] > [style*="flex-direction: column;"] > [data-testid="stVerticalBlock"] {
-        gap: 0rem;
-    }
-    
-    [data-testid="column"] {
-        border: none !important;
-        box-shadow: none !important;
-        background: none !important;
-    }
-    
-    /* Remove column gaps */
-    [data-testid="column"]::before,
-    [data-testid="column"]::after {
-        display: none !important;
-    }
-    
-    /* Hide any scroll indicators */
-    ::-webkit-scrollbar {
-        display: none !important;
-    }
-    
-    * {
-        scrollbar-width: none !important;
-        -ms-overflow-style: none !important;
-    }
-</style>
-""", unsafe_allow_html=True)
 
+
+[data-testid="column"]:nth-child(1) section[data-testid="stFileUploader"] label:hover {
+    background-color: #3d3d3d !important;
+}
+
+/* --- Rest of your CSS (mostly unchanged) --- */
+
+.welcome-title {
+    font-size: 1.8rem !important;
+}
+.feature-card {
+    padding: 1rem;
+    height: auto;
+    min-height: 200px;
+}
+.chat-input-container {
+    max-width: 100%;
+}
+.stTextInput > div > div > input {
+    padding: 12px 40px 12px 20px;
+    font-size: 14px;
+}
+.user-message, .assistant-message {
+    padding: 0.75rem;
+    font-size: 14px;
+}
+.stButton > button {
+    padding: 0.4rem 1rem;
+    font-size: 14px;
+}
+@media (max-width: 480px) {
+    .stApp {
+        padding: 0 0.25rem;
+    }
+    h1 {
+        font-size: 1.25rem !important;
+        margin-bottom: 0.5rem;
+    }
+    .welcome-title {
+        font-size: 1.5rem !important;
+        margin-bottom: 1rem;
+    }
+    .feature-card {
+        padding: 0.75rem;
+        margin-bottom: 0.75rem;
+    }
+    .stTextInput > div > div > input {
+        padding: 10px 35px 10px 15px;
+        font-size: 13px;
+        border-radius: 20px;
+    }
+    .user-message, .assistant-message {
+        padding: 0.5rem;
+        font-size: 13px;
+    }
+    [data-testid="column"]:last-child .stButton > button {
+        width: 32px;
+        height: 32px;
+        font-size: 16px;
+    }
+}
+/* Chat message styling */
+.user-message {
+    background-color: #2d2d2d;
+    padding: 1rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+}
+.assistant-message {
+    background-color: #1e1e1e;
+    padding: 1rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+}
+/* Input box styling - ChatGPT style */
+.stTextInput > div > div > input {
+    background-color: black;
+    border: 1px solid white;
+    border-radius: 26px;
+    padding: 14px 50px 14px 50px;
+    color: white;
+    font-size: 15px;
+    transition: all 0.2s ease;
+}
+.stTextInput > div > div > input:focus {
+    border: 1px solid white;
+    outline: none;
+    box-shadow: none;
+}
+.stTextInput > div > div > input::placeholder {
+    color: #8e8ea0;
+}
+/* Button styling */
+.stButton > button {
+    background-color: transparent;
+    border: 1px solid #3d3d3d;
+    border-radius: 10px;
+    color: white;
+    padding: 0.5rem 1.5rem;
+    transition: all 0.3s ease;
+}
+.stButton > button:hover {
+    background-color: #2d2d2d;
+    border-color: #5d5d5d;
+}
+/* Chat input wrapper styling */
+.chat-input-container {
+    position: relative;
+    max-width: 800px;
+    margin: 0 auto;
+}
+/* Plus button on left */
+.plus-button {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #8e8ea0;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 10;
+}
+/* Send button on right - circular */
+[data-testid="column"]:last-child .stButton > button {
+    background-color: #2d2d2d;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+/* Upload button on left - circular */
+[data-testid="column"]:nth-child(1) .stButton > button { 
+    display: none !important; 
+}
+
+
+[data-testid="column"]:nth-child(1) .stButton > button:hover,
+[data-testid="column"]:last-child .stButton > button:hover {
+    background-color: #3d3d3d;
+}
+
+/* Welcome message styling */
+.welcome-container {
+    text-align: center;
+    padding: 2rem 0 1rem 0;
+}
+.welcome-title {
+    font-size: 2.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+}
+/* Top navigation buttons */
+.top-nav-buttons {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    display: flex;
+    gap: 0.5rem;
+}
+/* Feature card styling */
+.feature-card {
+    background-color: #1e1e1e;
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid #3d3d3d;
+    margin-bottom: 1rem;
+    height: 280px;
+}
+.feature-card h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+}
+.feature-card ul {
+    margin-bottom: 0;
+}
+/* Hide column dividers and gaps */
+[data-testid="stVerticalBlock"] > [style*="flex-direction: column;"] > [data-testid="stVerticalBlock"] {
+    gap: 0rem;
+}
+[data-testid="column"] {
+    border: none !important;
+    box-shadow: none !important;
+    background: none !important;
+}
+/* Remove column gaps */
+[data-testid="column"]::before,
+[data-testid="column"]::after {
+    display: none !important;
+}
+/* Hide any scroll indicators */
+::-webkit-scrollbar {
+    display: none !important;
+}
+* {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+</style>
+""",
+unsafe_allow_html=True)
 # Initialize session state
 if 'mode' not in st.session_state:
     st.session_state.mode = 'home'
@@ -385,13 +327,6 @@ if st.session_state.mode == 'home':
 elif st.session_state.mode == 'analyze':
     st.header(" Resume ATS Analyzer")
     
-    # File upload
-    uploaded_resume = st.file_uploader(
-        "Upload your resume (PDF or DOCX)",
-        type=['pdf', 'docx'],
-        help="Upload your resume to get instant ATS score and feedback"
-    )
-    
     # Optional job description
     with st.expander(" Add Job Description (Optional - for better keyword matching)"):
         job_description = st.text_area(
@@ -400,10 +335,30 @@ elif st.session_state.mode == 'analyze':
             placeholder="Paste the job posting you're applying for to get better keyword matching..."
         )
     
-    if uploaded_resume:
-        if st.button(" Analyze Resume", type="primary"):
-            with st.spinner("Analyzing your resume..."):
-                # Save uploaded file temporarily
+    # Upload section at bottom with text box style
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # Store uploaded file in session state
+    if 'uploaded_file' not in st.session_state:
+        st.session_state.uploaded_file = None
+    
+    # Simple file uploader
+    uploaded_resume = st.file_uploader(
+        "Upload your resume (PDF or DOCX)",
+        type=['pdf', 'docx'],
+        key="resume_upload"
+    )
+    
+    # Analyze button
+    analyze_clicked = st.button("Analyze Resume", type="primary")
+    
+    if uploaded_resume and analyze_clicked:
+        with st.spinner("Analyzing your resume..."):
+            # Save uploaded file temporarily
+            # Check if parser and scorer are successfully initialized
+            if parser is None or scorer is None:
+                st.error("Analysis failed: Resume parser or ATS scorer could not be initialized.")
+            else:
                 with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(uploaded_resume.name)[1]) as tmp_file:
                     tmp_file.write(uploaded_resume.getbuffer())
                     tmp_path = tmp_file.name
@@ -523,13 +478,18 @@ elif st.session_state.mode == 'guide':
             with col2:
                 if st.button(question, use_container_width=True):
                     st.session_state.chat_history.append({'role': 'user', 'content': question})
-                    answer = answer_question(question)
+                    # Add check for utility function
+                    if 'answer_question' in globals():
+                        answer = answer_question(question)
+                    else:
+                        answer = "Error: RAG utility not available."
+                        
                     st.session_state.chat_history.append({'role': 'assistant', 'content': answer})
                     st.rerun()
     
     else:
         # Display chat history
-        for message in st.session_state.chat_history:
+        for message in st.session_session_state.chat_history:
             if message['role'] == 'user':
                 st.markdown(f"""
                 <div class="user-message">
@@ -567,7 +527,10 @@ elif st.session_state.mode == 'guide':
         
         with st.spinner(""):
             # Get answer from RAG system
-            answer = answer_question(user_question)
+            if 'answer_question' in globals():
+                answer = answer_question(user_question)
+            else:
+                answer = "Error: RAG utility not available."
             
             # Add AI response
             st.session_state.chat_history.append({'role': 'assistant', 'content': answer})
