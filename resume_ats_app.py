@@ -500,7 +500,7 @@ elif st.session_state.mode == 'guide':
     
     else:
         # Display chat history
-        for message in st.session_session_state.chat_history:
+        for message in st.session_state.chat_history:
             if message['role'] == 'user':
                 st.markdown(f"""
                 <div class="user-message">
@@ -537,11 +537,16 @@ elif st.session_state.mode == 'guide':
         st.session_state.chat_history.append({'role': 'user', 'content': user_question})
         
         with st.spinner(""):
-            # Get answer from RAG system
-            if 'answer_question' in globals():
-                answer = answer_question(user_question)
+            # Check if user is just greeting
+            greetings = ['hi', 'hello', 'hey', 'hay', 'hi!', 'hello!', 'hey!', 'hay!']
+            if user_question.strip().lower() in greetings:
+                answer = "Hello! How was your day? How could I help you today?"
             else:
-                answer = "Error: RAG utility not available."
+                # Get answer from RAG system
+                if 'answer_question' in globals():
+                    answer = answer_question(user_question)
+                else:
+                    answer = "Error: RAG utility not available."
             
             # Add AI response
             st.session_state.chat_history.append({'role': 'assistant', 'content': answer})
