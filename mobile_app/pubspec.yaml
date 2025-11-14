@@ -1,0 +1,60 @@
+name: resume_ats_mobile
+description: AI-powered Resume ATS Analyzer mobile application
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # UI & Icons
+  cupertino_icons: ^1.0.6
+  flutter_svg: ^2.0.9
+  
+  # State Management
+  flutter_riverpod: ^2.4.9
+  
+  # HTTP & API
+  dio: ^5.4.0
+  http: ^1.1.2
+  
+  # File Handling
+  file_picker: ^6.1.1
+  path_provider: ^2.1.1
+  open_file: ^3.3.2
+  
+  # Firebase
+  firebase_core: ^2.24.2
+  firebase_auth: ^4.15.3
+  firebase_storage: ^11.5.6
+  cloud_firestore: ^4.13.6
+  
+  # PDF & Documents
+  pdf: ^3.10.7
+  printing: ^5.11.1
+  
+  # UI Components
+  flutter_markdown: ^0.6.18
+  shimmer: ^3.0.0
+  lottie: ^2.7.0
+  
+  # Utils
+  intl: ^0.18.1
+  shared_preferences: ^2.2.2
+  uuid: ^4.2.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+
+flutter:
+  uses-material-design: true
+  
+  assets:
+    - assets/images/
+    - assets/animations/
+    - assets/icons/
