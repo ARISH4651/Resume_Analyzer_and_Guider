@@ -76,40 +76,80 @@ async def parse_resume(file: UploadFile = File(...)):
     Parse uploaded resume file (PDF or DOCX)
     Returns parsed resume data
     """
+    print(f"\n=== Parse Resume Request ===")
+    print(f"File received: {file.filename if file else 'None'}")
+    print(f"Content type: {file.content_type if file else 'None'}")
+    
     try:
-        # Validate file type
-        if not file.filename.endswith(('.pdf', '.docx')):
+        # Validate file exists
+        if not file:
+            print("ERROR: No file uploaded")
             raise HTTPException(
                 status_code=400,
-                detail="Only PDF and DOCX files are supported"
+                detail="No file uploaded"
+            )
+        
+        # Validate file type
+        if not file.filename:
+            print("ERROR: No filename")
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid file"
+            )
+        
+        print(f"Checking file extension: {file.filename}")
+        if not file.filename.lower().endswith(('.pdf', '.docx')):
+            print(f"ERROR: Invalid file type: {file.filename}")
+            raise HTTPException(
+                status_code=400,
+                detail=f"Only PDF and DOCX files are supported. Got: {file.filename}"
             )
         
         # Save uploaded file temporarily
+        print("Reading file content...")
+        content = await file.read()
+        print(f"File size: {len(content)} bytes")
+        
+        if not content:
+            print("ERROR: Empty file")
+            raise HTTPException(
+                status_code=400,
+                detail="Empty file"
+            )
+        
         with tempfile.NamedTemporaryFile(
             delete=False,
             suffix=os.path.splitext(file.filename)[1]
         ) as tmp_file:
-            content = await file.read()
             tmp_file.write(content)
             tmp_path = tmp_file.name
+            print(f"Saved to temp file: {tmp_path}")
         
         try:
             # Parse resume
+            print("Parsing resume...")
             parsed = parser.parse_resume(tmp_path)
+            print(f"Parse result keys: {parsed.keys() if isinstance(parsed, dict) else 'Not a dict'}")
             
             if 'error' in parsed:
+                print(f"ERROR in parsed result: {parsed['error']}")
                 raise HTTPException(status_code=400, detail=parsed['error'])
             
+            print("✓ Parse successful!")
             return parsed
         
         finally:
             # Cleanup temp file
             if os.path.exists(tmp_path):
                 os.unlink(tmp_path)
+                print(f"Cleaned up temp file: {tmp_path}")
     
     except HTTPException:
         raise
     except Exception as e:
+        import traceback
+        error_detail = f"Error parsing resume: {str(e)}\n{traceback.format_exc()}"
+        print(f"\n!!! EXCEPTION !!!\n{error_detail}")
         raise HTTPException(status_code=500, detail=str(e))
 
 # Calculate ATS Score endpoint
@@ -155,6 +195,7 @@ async def enhance_resume_endpoint(request: EnhanceRequest):
     """
     Enhance resume with AI suggestions
     """
+    print(f"\n=== Enhance Resume Request ===")
     try:
         # Import Firebase for enhancement data
         try:
@@ -195,8 +236,9 @@ async def enhance_resume_endpoint(request: EnhanceRequest):
                 "changes": changes_made
             }
         
-        except ImportError:
+        except ImportError as ie:
             # Fallback enhancement without Firebase
+            print(f"Firebase not available, using fallback: {ie}")
             enhanced_data = request.parsed_resume.copy()
             
             # Add basic enhancements
@@ -211,8 +253,29 @@ async def enhance_resume_endpoint(request: EnhanceRequest):
                     "Improved keyword placement"
                 ]
             }
+        except Exception as fb_error:
+            # Firebase error, use fallback
+            print(f"Firebase error, using fallback: {fb_error}")
+            import traceback
+            traceback.print_exc()
+            
+            enhanced_data = request.parsed_resume.copy()
+            if 'summary' not in enhanced_data:
+                enhanced_data['summary'] = "Results-driven professional with proven expertise in achieving measurable outcomes."
+            
+            return {
+                "enhanced_resume": enhanced_data,
+                "changes": [
+                    "Optimized formatting for ATS (Firebase unavailable)",
+                    "Enhanced with professional templates",
+                    "Improved keyword placement"
+                ]
+            }
     
     except Exception as e:
+        import traceback
+        error_detail = f"Error enhancing resume: {str(e)}\n{traceback.format_exc()}"
+        print(f"\n!!! EXCEPTION !!!\n{error_detail}")
         raise HTTPException(status_code=500, detail=str(e))
 
 # Get all endpoints info

@@ -1,0 +1,25 @@
+# Minimal requirements for FastAPI backend (without heavy ML packages)
+
+# FastAPI Core
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+python-multipart==0.0.6
+pydantic>=2.7.4,<3.0.0
+python-dotenv==1.0.0
+
+# Firebase & Utils
+toml==0.10.2
+firebase-admin==6.5.0
+
+# LangChain Core (lightweight)
+langchain==0.3.16
+langchain-core>=0.3.32,<0.4.0
+langchain-groq==0.2.3
+groq<1,>=0.4.1
+
+# Vector Store (lightweight version)
+chromadb==0.4.24
+
+# Required for existing code
+SQLAlchemy>=1.4,<3
+requests>=2,<3

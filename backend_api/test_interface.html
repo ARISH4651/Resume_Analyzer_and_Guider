@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume ATS Analyzer - Web Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #000;
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: #1e1e1e;
+            border: 2px solid #3d3d3d;
+            color: #fff;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .tab-btn:hover {
+            background: #2d2d2d;
+            border-color: #667eea;
+        }
+
+        .tab-btn.active {
+            background: #667eea;
+            border-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+            background: #1e1e1e;
+            border: 1px solid #3d3d3d;
+            border-radius: 20px;
+            padding: 30px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #ddd;
+        }
+
+        input[type="file"],
+        textarea,
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            background: #000;
+            border: 2px solid #3d3d3d;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        button {
+            padding: 14px 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background: #0a0a0a;
+            border: 1px solid #3d3d3d;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .result h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .result pre {
+            background: #000;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            border: 1px solid #3d3d3d;
+        }
+
+        .score-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .score-value {
+            font-size: 4rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .score-label {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .feedback-section {
+            margin-top: 20px;
+        }
+
+        .feedback-item {
+            background: #0a0a0a;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .feedback-item h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .feedback-item p {
+            margin: 5px 0;
+            padding-left: 20px;
+        }
+
+        .success { color: #10b981; }
+        .warning { color: #f59e0b; }
+        .error { color: #ef4444; }
+
+        .loader {
+            border: 3px solid #3d3d3d;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            display: none;
+        }
+
+        .loader.show {
+            display: block;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .info-box {
+            background: #0a0a0a;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        .api-status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .api-status.online {
+            background: #10b981;
+            color: #000;
+        }
+
+        .api-status.offline {
+            background: #ef4444;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎯 Resume ATS Analyzer</h1>
+            <p class="subtitle">AI-Powered Resume Analysis & Career Assistant</p>
+            <div class="api-status" id="apiStatus">Checking API...</div>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('parse')">📄 Parse Resume</button>
+            <button class="tab-btn" onclick="showTab('ats')">⭐ ATS Score</button>
+            <button class="tab-btn" onclick="showTab('question')">💬 Ask Question</button>
+            <button class="tab-btn" onclick="showTab('enhance')">✨ Enhance Resume</button>
+        </div>
+
+        <!-- Parse Resume Tab -->
+        <div id="parse" class="tab-content active">
+            <div class="info-box">
+                <strong>📄 Upload Resume</strong>
+                <p>Upload your resume (PDF or DOCX) to extract information using AI.</p>
+            </div>
+            <form onsubmit="parseResume(event)">
+                <div class="form-group">
+                    <label>Upload Resume File:</label>
+                    <input type="file" id="resumeFile" accept=".pdf,.docx" required>
+                </div>
+                <button type="submit" id="parseBtn">Parse Resume</button>
+            </form>
+            <div class="loader" id="parseLoader"></div>
+            <div class="result" id="parseResult">
+                <h3>📊 Parsed Results:</h3>
+                <pre id="parseOutput"></pre>
+            </div>
+        </div>
+
+        <!-- ATS Score Tab -->
+        <div id="ats" class="tab-content">
+            <div class="info-box">
+                <strong>⭐ Calculate ATS Score</strong>
+                <p>Get your Applicant Tracking System compatibility score (0-100).</p>
+            </div>
+            <form onsubmit="calculateATS(event)">
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="text" id="atsEmail" placeholder="your@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Phone:</label>
+                    <input type="text" id="atsPhone" placeholder="+1234567890" required>
+                </div>
+                <div class="form-group">
+                    <label>Skills (comma-separated):</label>
+                    <input type="text" id="atsSkills" placeholder="Python, Java, Machine Learning" required>
+                </div>
+                <div class="form-group">
+                    <label>Job Description (Optional):</label>
+                    <textarea id="atsJobDesc" placeholder="Paste job description here for better keyword matching..."></textarea>
+                </div>
+                <button type="submit" id="atsBtn">Calculate Score</button>
+            </form>
+            <div class="loader" id="atsLoader"></div>
+            <div class="result" id="atsResult"></div>
+        </div>
+
+        <!-- Ask Question Tab -->
+        <div id="question" class="tab-content">
+            <div class="info-box">
+                <strong>💬 Ask Resume Questions</strong>
+                <p>Get expert advice on resume writing, ATS optimization, and career guidance.</p>
+            </div>
+            <form onsubmit="askQuestion(event)">
+                <div class="form-group">
+                    <label>Your Question:</label>
+                    <textarea id="questionInput" placeholder="e.g., What is ATS and why is it important?" required></textarea>
+                </div>
+                <button type="submit" id="questionBtn">Get Answer</button>
+            </form>
+            <div class="loader" id="questionLoader"></div>
+            <div class="result" id="questionResult">
+                <h3>💡 Answer:</h3>
+                <div id="questionOutput"></div>
+            </div>
+        </div>
+
+        <!-- Enhance Resume Tab -->
+        <div id="enhance" class="tab-content">
+            <div class="info-box">
+                <strong>✨ Enhance Resume</strong>
+                <p>Get AI-powered suggestions to improve your resume.</p>
+            </div>
+            <form onsubmit="enhanceResume(event)">
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="text" id="enhanceEmail" placeholder="your@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Current Skills:</label>
+                    <input type="text" id="enhanceSkills" placeholder="Python, Java" required>
+                </div>
+                <button type="submit" id="enhanceBtn">Enhance Resume</button>
+            </form>
+            <div class="loader" id="enhanceLoader"></div>
+            <div class="result" id="enhanceResult">
+                <h3>✨ Enhanced Version:</h3>
+                <pre id="enhanceOutput"></pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000';
+
+        // Check API status
+        async function checkAPI() {
+            try {
+                const response = await fetch(API_BASE);
+                const data = await response.json();
+                document.getElementById('apiStatus').textContent = `✓ API Online - ${data.version}`;
+                document.getElementById('apiStatus').className = 'api-status online';
+            } catch (error) {
+                document.getElementById('apiStatus').textContent = '✗ API Offline';
+                document.getElementById('apiStatus').className = 'api-status offline';
+            }
+        }
+
+        // Tab switching
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Parse Resume
+        async function parseResume(event) {
+            event.preventDefault();
+            const fileInput = document.getElementById('resumeFile');
+            const loader = document.getElementById('parseLoader');
+            const result = document.getElementById('parseResult');
+            const output = document.getElementById('parseOutput');
+            const btn = document.getElementById('parseBtn');
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            btn.disabled = true;
+            loader.classList.add('show');
+            result.classList.remove('show');
+
+            try {
+                const response = await fetch(`${API_BASE}/api/parse-resume`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                output.textContent = JSON.stringify(data, null, 2);
+                result.classList.add('show');
+            } catch (error) {
+                output.textContent = `Error: ${error.message}`;
+                result.classList.add('show');
+            } finally {
+                btn.disabled = false;
+                loader.classList.remove('show');
+            }
+        }
+
+        // Calculate ATS Score
+        async function calculateATS(event) {
+            event.preventDefault();
+            const loader = document.getElementById('atsLoader');
+            const result = document.getElementById('atsResult');
+            const btn = document.getElementById('atsBtn');
+
+            const requestData = {
+                parsed_resume: {
+                    email: document.getElementById('atsEmail').value,
+                    phone: [document.getElementById('atsPhone').value],
+                    skills: document.getElementById('atsSkills').value.split(',').map(s => s.trim()),
+                    experience: ['Professional experience'],
+                    education: ['Education'],
+                    word_count: 450,
+                    action_verb_count: 12,
+                    has_quantifiable_results: true
+                },
+                job_description: document.getElementById('atsJobDesc').value
+            };
+
+            btn.disabled = true;
+            loader.classList.add('show');
+            result.classList.remove('show');
+
+            try {
+                const response = await fetch(`${API_BASE}/api/calculate-ats`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestData)
+                });
+                const data = await response.json();
+                
+                let html = `
+                    <div class="score-card">
+                        <div class="score-label">ATS Score</div>
+                        <div class="score-value">${data.total_score}/100</div>
+                        <div class="score-label">${data.grade}</div>
+                    </div>
+                    <div class="feedback-section">
+                        <h3>Detailed Feedback:</h3>
+                `;
+
+                for (const [category, details] of Object.entries(data.detailed_feedback)) {
+                    html += `
+                        <div class="feedback-item">
+                            <h4>${category}: ${details.score}/${details.max} points</h4>
+                            ${details.feedback.map(f => {
+                                const className = f.includes('✓') ? 'success' : f.includes('⚠') ? 'warning' : 'error';
+                                return `<p class="${className}">${f}</p>`;
+                            }).join('')}
+                        </div>
+                    `;
+                }
+
+                html += '</div>';
+                result.innerHTML = html;
+                result.classList.add('show');
+            } catch (error) {
+                result.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+                result.classList.add('show');
+            } finally {
+                btn.disabled = false;
+                loader.classList.remove('show');
+            }
+        }
+
+        // Ask Question
+        async function askQuestion(event) {
+            event.preventDefault();
+            const loader = document.getElementById('questionLoader');
+            const result = document.getElementById('questionResult');
+            const output = document.getElementById('questionOutput');
+            const btn = document.getElementById('questionBtn');
+
+            const requestData = {
+                question: document.getElementById('questionInput').value
+            };
+
+            btn.disabled = true;
+            loader.classList.add('show');
+            result.classList.remove('show');
+
+            try {
+                const response = await fetch(`${API_BASE}/api/ask-question`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestData)
+                });
+                const data = await response.json();
+                output.innerHTML = `<p>${data.answer}</p>`;
+                result.classList.add('show');
+            } catch (error) {
+                output.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+                result.classList.add('show');
+            } finally {
+                btn.disabled = false;
+                loader.classList.remove('show');
+            }
+        }
+
+        // Enhance Resume
+        async function enhanceResume(event) {
+            event.preventDefault();
+            const loader = document.getElementById('enhanceLoader');
+            const result = document.getElementById('enhanceResult');
+            const output = document.getElementById('enhanceOutput');
+            const btn = document.getElementById('enhanceBtn');
+
+            const requestData = {
+                parsed_resume: {
+                    email: document.getElementById('enhanceEmail').value,
+                    skills: document.getElementById('enhanceSkills').value.split(',').map(s => s.trim())
+                }
+            };
+
+            btn.disabled = true;
+            loader.classList.add('show');
+            result.classList.remove('show');
+
+            try {
+                const response = await fetch(`${API_BASE}/api/enhance-resume`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestData)
+                });
+                const data = await response.json();
+                output.textContent = JSON.stringify(data, null, 2);
+                result.classList.add('show');
+            } catch (error) {
+                output.textContent = `Error: ${error.message}`;
+                result.classList.add('show');
+            } finally {
+                btn.disabled = false;
+                loader.classList.remove('show');
+            }
+        }
+
+        // Initialize
+        checkAPI();
+        setInterval(checkAPI, 30000); // Check every 30 seconds
+    </script>
+</body>
+</html>
