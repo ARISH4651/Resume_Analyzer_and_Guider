@@ -5,10 +5,18 @@ Extracts and parses content from PDF and DOCX resume files
 
 import re
 from typing import Dict, List
+
+# Try pypdf (newer) first, then PyPDF2 (older)
 try:
-    import PyPDF2
-except ImportError:
+    from pypdf import PdfReader
     PyPDF2 = None
+    pypdf_available = True
+except ImportError:
+    pypdf_available = False
+    try:
+        import PyPDF2
+    except ImportError:
+        PyPDF2 = None
 
 try:
     import pdfplumber
@@ -70,34 +78,75 @@ class ResumeParser:
         return ""
     
     def extract_text_from_pdf(self, file_path: str) -> str:
-        """Extract text from PDF using pdfplumber or PyPDF2"""
+        """Extract text from PDF using pypdf, pdfplumber or PyPDF2"""
         text = ""
         
-        # Try pdfplumber first (better extraction)
+        # Try pypdf first (newest, most reliable)
+        if pypdf_available:
+            try:
+                print(f"Trying pypdf on {file_path}")
+                from pypdf import PdfReader
+                pdf_reader = PdfReader(file_path)
+                print(f"PDF has {len(pdf_reader.pages)} pages")
+                for i, page in enumerate(pdf_reader.pages):
+                    page_text = page.extract_text()
+                    if page_text:
+                        text += page_text + "\n"
+                        print(f"Page {i+1}: extracted {len(page_text)} chars")
+                if text.strip():
+                    print(f"✓ pypdf successful: {len(text)} chars total")
+                    return text
+                else:
+                    print("pypdf extracted no text")
+            except Exception as e:
+                print(f"✗ pypdf error: {e}")
+                import traceback
+                traceback.print_exc()
+        
+        # Try pdfplumber (better extraction for complex layouts)
         if pdfplumber:
             try:
+                print(f"Trying pdfplumber on {file_path}")
                 with pdfplumber.open(file_path) as pdf:
-                    for page in pdf.pages:
+                    print(f"PDF has {len(pdf.pages)} pages")
+                    for i, page in enumerate(pdf.pages):
                         page_text = page.extract_text()
                         if page_text:
                             text += page_text + "\n"
-                return text
+                            print(f"Page {i+1}: extracted {len(page_text)} chars")
+                if text.strip():
+                    print(f"✓ pdfplumber successful: {len(text)} chars total")
+                    return text
+                else:
+                    print("pdfplumber extracted no text")
             except Exception as e:
-                print(f"pdfplumber error: {e}")
+                print(f"✗ pdfplumber error: {e}")
+                import traceback
+                traceback.print_exc()
         
         # Fallback to PyPDF2
         if PyPDF2:
             try:
+                print(f"Trying PyPDF2 on {file_path}")
                 with open(file_path, 'rb') as file:
                     pdf_reader = PyPDF2.PdfReader(file)
-                    for page in pdf_reader.pages:
+                    print(f"PDF has {len(pdf_reader.pages)} pages")
+                    for i, page in enumerate(pdf_reader.pages):
                         page_text = page.extract_text()
                         if page_text:
                             text += page_text + "\n"
-                return text
+                            print(f"Page {i+1}: extracted {len(page_text)} chars")
+                if text.strip():
+                    print(f"✓ PyPDF2 successful: {len(text)} chars total")
+                    return text
+                else:
+                    print("PyPDF2 extracted no text")
             except Exception as e:
-                print(f"PyPDF2 error: {e}")
+                print(f"✗ PyPDF2 error: {e}")
+                import traceback
+                traceback.print_exc()
         
+        print(f"✗ Failed to extract text from PDF. Final text length: {len(text)}")
         return text
     
     def extract_text_from_docx(self, file_path: str) -> str:

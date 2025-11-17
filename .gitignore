@@ -6,6 +6,8 @@ env/
 config.json
 .streamlit/
 .streamlit/secrets.toml
+*.env
+.env.local
 
 # Python cache
 __pycache__/
@@ -14,3 +16,23 @@ __pycache__/
 
 # ChromaDB vectorstore
 doc_vectorstore/
+
+# Test and temporary files
+test_*.py
+fix_chromadb.py
+backend_api/test_upload.py
+backend_api/test_parse_env.py
+
+# Firebase service account keys
+*serviceAccountKey.json
+firebase-adminsdk-*.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
