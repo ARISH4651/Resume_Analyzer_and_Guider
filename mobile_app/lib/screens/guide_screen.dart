@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lottie/lottie.dart' as lottie_lib;
 import '../services/api_service.dart';
 import '../models/chat_message.dart';
 
@@ -129,13 +130,13 @@ class _GuideScreenState extends ConsumerState<GuideScreen> {
 
   Widget _buildWelcomeView() {
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            const Color(0xFF1A1A1A),
-            const Color(0xFF0A0A0A),
+            Color(0xFF1A1A1A),
+            Color(0xFF0A0A0A),
           ],
         ),
       ),
@@ -164,10 +165,11 @@ class _GuideScreenState extends ConsumerState<GuideScreen> {
                     ),
                   ],
                 ),
-                child: const Icon(
-                  Icons.auto_awesome_outlined,
-                  size: 40,
-                  color: Color(0xFF00F5A0),
+                child: lottie_lib.Lottie.asset(
+                  'assets/animations/chat_bubble.json',
+                  width: 40,
+                  height: 40,
+                  fit: BoxFit.contain,
                 ),
               ),
               const SizedBox(height: 32),
@@ -299,13 +301,13 @@ class _GuideScreenState extends ConsumerState<GuideScreen> {
 
   Widget _buildChatView() {
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            const Color(0xFF1A1A1A),
-            const Color(0xFF0A0A0A),
+            Color(0xFF1A1A1A),
+            Color(0xFF0A0A0A),
           ],
         ),
       ),
@@ -448,13 +450,13 @@ class _GuideScreenState extends ConsumerState<GuideScreen> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(
+            const SizedBox(
               width: 18,
               height: 18,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
                 valueColor: AlwaysStoppedAnimation<Color>(
-                  const Color(0xFF00F5A0),
+                  Color(0xFF00F5A0),
                 ),
               ),
             ),

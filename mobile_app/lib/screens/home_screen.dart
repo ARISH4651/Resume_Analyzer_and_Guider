@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart' as lottie_lib;
 import 'analyze_screen.dart';
 import 'guide_screen.dart';
 
@@ -215,116 +216,137 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        width: 72,
-                        height: 72,
-                        padding: const EdgeInsets.all(16),
+                        width: 90,
+                        height: 90,
+                        padding: const EdgeInsets.all(18),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              const Color(0xFFA463F2).withOpacity(0.15),
-                              const Color(0xFF7B2FF7).withOpacity(0.1),
+                              const Color(0xFFA463F2).withOpacity(0.18),
+                              const Color(0xFF7B2FF7).withOpacity(0.12),
                             ],
                           ),
-                          borderRadius: BorderRadius.circular(18),
+                          borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: const Color(0xFFA463F2).withOpacity(0.3),
-                            width: 1.5,
+                            color: const Color(0xFFA463F2).withOpacity(0.35),
+                            width: 2,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFFA463F2).withOpacity(0.25),
-                              blurRadius: 14,
-                              spreadRadius: 0,
-                              offset: const Offset(0, 2),
+                              color: const Color(0xFFA463F2).withOpacity(0.20),
+                              blurRadius: 24,
+                              spreadRadius: 2,
+                              offset: const Offset(0, 4),
                             ),
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.15),
-                              blurRadius: 8,
-                              spreadRadius: -2,
-                              offset: const Offset(0, 0),
+                              color: const Color(0xFFA463F2).withOpacity(0.12),
+                              blurRadius: 40,
+                              spreadRadius: 0,
+                              offset: const Offset(0, 8),
+                            ),
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 12,
+                              spreadRadius: -3,
+                              offset: const Offset(0, 2),
                             ),
                           ],
                         ),
-                        child: const Icon(
-                          Icons.description_outlined,
-                          color: Color(0xFFA463F2),
-                          size: 40,
+                        child: lottie_lib.Lottie.asset(
+                          'assets/animations/document_glow.json',
+                          width: 50,
+                          height: 50,
+                          fit: BoxFit.contain,
                         ),
                       ),
                       const SizedBox(width: 32),
                       Container(
-                        width: 72,
-                        height: 72,
-                        padding: const EdgeInsets.all(16),
+                        width: 90,
+                        height: 90,
+                        padding: const EdgeInsets.all(18),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              const Color(0xFF2196F3).withOpacity(0.15),
-                              const Color(0xFF1976D2).withOpacity(0.1),
+                              const Color(0xFF2196F3).withOpacity(0.18),
+                              const Color(0xFF1976D2).withOpacity(0.12),
                             ],
                           ),
-                          borderRadius: BorderRadius.circular(18),
+                          borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: const Color(0xFF2196F3).withOpacity(0.3),
-                            width: 1.5,
+                            color: const Color(0xFF2196F3).withOpacity(0.35),
+                            width: 2,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF2196F3).withOpacity(0.25),
-                              blurRadius: 14,
-                              spreadRadius: 0,
-                              offset: const Offset(0, 2),
+                              color: const Color(0xFF2196F3).withOpacity(0.20),
+                              blurRadius: 24,
+                              spreadRadius: 2,
+                              offset: const Offset(0, 4),
                             ),
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.15),
-                              blurRadius: 8,
-                              spreadRadius: -2,
-                              offset: const Offset(0, 0),
+                              color: const Color(0xFF2196F3).withOpacity(0.12),
+                              blurRadius: 40,
+                              spreadRadius: 0,
+                              offset: const Offset(0, 8),
+                            ),
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 12,
+                              spreadRadius: -3,
+                              offset: const Offset(0, 2),
                             ),
                           ],
                         ),
-                        child: const Icon(
-                          Icons.psychology_outlined,
-                          color: Color(0xFF2196F3),
-                          size: 40,
+                        child: lottie_lib.Lottie.asset(
+                          'assets/animations/clock_pulse.json',
+                          width: 50,
+                          height: 50,
+                          fit: BoxFit.contain,
                         ),
                       ),
                       const SizedBox(width: 32),
                       Container(
-                        width: 72,
-                        height: 72,
-                        padding: const EdgeInsets.all(16),
+                        width: 90,
+                        height: 90,
+                        padding: const EdgeInsets.all(18),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              const Color(0xFF00F5A0).withOpacity(0.15),
-                              const Color(0xFF00C98D).withOpacity(0.1),
+                              const Color(0xFF00F5A0).withOpacity(0.18),
+                              const Color(0xFF00C98D).withOpacity(0.12),
                             ],
                           ),
-                          borderRadius: BorderRadius.circular(18),
+                          borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: const Color(0xFF00F5A0).withOpacity(0.3),
-                            width: 1.5,
+                            color: const Color(0xFF00F5A0).withOpacity(0.35),
+                            width: 2,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF00F5A0).withOpacity(0.25),
-                              blurRadius: 14,
-                              spreadRadius: 0,
-                              offset: const Offset(0, 2),
+                              color: const Color(0xFF00F5A0).withOpacity(0.20),
+                              blurRadius: 24,
+                              spreadRadius: 2,
+                              offset: const Offset(0, 4),
                             ),
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.15),
-                              blurRadius: 8,
-                              spreadRadius: -2,
-                              offset: const Offset(0, 0),
+                              color: const Color(0xFF00F5A0).withOpacity(0.12),
+                              blurRadius: 40,
+                              spreadRadius: 0,
+                              offset: const Offset(0, 8),
+                            ),
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 12,
+                              spreadRadius: -3,
+                              offset: const Offset(0, 2),
                             ),
                           ],
                         ),
-                        child: const Icon(
-                          Icons.chat_bubble_outline,
-                          color: Color(0xFF00F5A0),
-                          size: 40,
+                        child: lottie_lib.Lottie.asset(
+                          'assets/animations/chat_bubble.json',
+                          width: 50,
+                          height: 50,
+                          fit: BoxFit.contain,
                         ),
                       ),
                     ],
@@ -334,40 +356,47 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   
                   // 4th Icon
                   Container(
-                    width: 72,
-                    height: 72,
-                    padding: const EdgeInsets.all(16),
+                    width: 90,
+                    height: 90,
+                    padding: const EdgeInsets.all(18),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          const Color(0xFFFF6EC7).withOpacity(0.15),
-                          const Color(0xFFE91E63).withOpacity(0.1),
+                          const Color(0xFFFF6EC7).withOpacity(0.18),
+                          const Color(0xFFE91E63).withOpacity(0.12),
                         ],
                       ),
-                      borderRadius: BorderRadius.circular(18),
+                      borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: const Color(0xFFFF6EC7).withOpacity(0.3),
-                        width: 1.5,
+                        color: const Color(0xFFFF6EC7).withOpacity(0.35),
+                        width: 2,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFFFF6EC7).withOpacity(0.25),
-                          blurRadius: 14,
-                          spreadRadius: 0,
-                          offset: const Offset(0, 2),
+                          color: const Color(0xFFFF6EC7).withOpacity(0.20),
+                          blurRadius: 24,
+                          spreadRadius: 2,
+                          offset: const Offset(0, 4),
                         ),
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.15),
-                          blurRadius: 8,
-                          spreadRadius: -2,
-                          offset: const Offset(0, 0),
+                          color: const Color(0xFFFF6EC7).withOpacity(0.12),
+                          blurRadius: 40,
+                          spreadRadius: 0,
+                          offset: const Offset(0, 8),
+                        ),
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 12,
+                          spreadRadius: -3,
+                          offset: const Offset(0, 2),
                         ),
                       ],
                     ),
-                    child: const Icon(
-                      Icons.checklist_outlined,
-                      color: Color(0xFFFF6EC7),
-                      size: 40,
+                    child: lottie_lib.Lottie.asset(
+                      'assets/animations/checklist_complete.json',
+                      width: 50,
+                      height: 50,
+                      fit: BoxFit.contain,
                     ),
                   ),
                   
@@ -662,11 +691,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             width: 1,
                           ),
                         ),
-                        child: Column(
+                        child: const Column(
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Row(
+                            Row(
                               children: [
                                 Text(
                                   '🎓',
@@ -688,8 +717,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 16),
-                            const Text(
+                            SizedBox(height: 16),
+                            Text(
                               'Your smart companion for career growth! 📝',
                               style: TextStyle(
                                 color: Colors.white70,
@@ -697,8 +726,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                 height: 1.5,
                               ),
                             ),
-                            const SizedBox(height: 12),
-                            const Text(
+                            SizedBox(height: 12),
+                            Text(
                               'It analyzes your resume 📄 using NLP, finds skill gaps 💔, and gives personalized course, project, and certification suggestions 🎓.',
                               style: TextStyle(
                                 color: Colors.white70,
@@ -706,8 +735,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                 height: 1.5,
                               ),
                             ),
-                            const SizedBox(height: 12),
-                            const Text(
+                            SizedBox(height: 12),
+                            Text(
                               'Get your ATS score instantly ⭐\nand upgrade your profile for top job opportunities! 💪',
                               style: TextStyle(
                                 color: Colors.white70,
