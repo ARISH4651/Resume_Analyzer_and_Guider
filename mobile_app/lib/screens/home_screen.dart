@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
 import 'analyze_screen.dart';
 import 'guide_screen.dart';
 
@@ -24,9 +23,14 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 
   void _removeOverlay() {
-    _overlayEntry?.remove();
+    try {
+      // remove only if present
+      _overlayEntry?.remove();
+    } catch (_) {
+      // ignore removal errors
+    }
     _overlayEntry = null;
-    setState(() => _showProfileMenu = false);
+    if (mounted) setState(() => _showProfileMenu = false);
   }
 
   void _toggleProfileMenu() {
@@ -38,9 +42,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 
   void _showOverlay() {
-    _overlayEntry = _createOverlayEntry();
-    Overlay.of(context).insert(_overlayEntry!);
-    setState(() => _showProfileMenu = true);
+    final entry = _createOverlayEntry();
+    _overlayEntry = entry;
+    final overlay = Overlay.of(context);
+    overlay.insert(entry);
+    if (mounted) setState(() => _showProfileMenu = true);
   }
 
   OverlayEntry _createOverlayEntry() {
@@ -211,7 +217,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       Container(
                         width: 72,
                         height: 72,
-                        padding: const EdgeInsets.all(8),
+                        padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
@@ -239,16 +245,17 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             ),
                           ],
                         ),
-                        child: Lottie.asset(
-                          'assets/animations/document_glow.json',
-                          fit: BoxFit.contain,
+                        child: const Icon(
+                          Icons.description_outlined,
+                          color: Color(0xFFA463F2),
+                          size: 40,
                         ),
                       ),
                       const SizedBox(width: 32),
                       Container(
                         width: 72,
                         height: 72,
-                        padding: const EdgeInsets.all(8),
+                        padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
@@ -276,16 +283,17 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             ),
                           ],
                         ),
-                        child: Lottie.asset(
-                          'assets/animations/brain_pulse.json',
-                          fit: BoxFit.contain,
+                        child: const Icon(
+                          Icons.psychology_outlined,
+                          color: Color(0xFF2196F3),
+                          size: 40,
                         ),
                       ),
                       const SizedBox(width: 32),
                       Container(
                         width: 72,
                         height: 72,
-                        padding: const EdgeInsets.all(8),
+                        padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
@@ -313,9 +321,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             ),
                           ],
                         ),
-                        child: Lottie.asset(
-                          'assets/animations/chat_bubble.json',
-                          fit: BoxFit.contain,
+                        child: const Icon(
+                          Icons.chat_bubble_outline,
+                          color: Color(0xFF00F5A0),
+                          size: 40,
                         ),
                       ),
                     ],
@@ -327,7 +336,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   Container(
                     width: 72,
                     height: 72,
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
@@ -355,9 +364,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         ),
                       ],
                     ),
-                    child: Lottie.asset(
-                      'assets/animations/checklist_complete.json',
-                      fit: BoxFit.contain,
+                    child: const Icon(
+                      Icons.checklist_outlined,
+                      color: Color(0xFFFF6EC7),
+                      size: 40,
                     ),
                   ),
                   

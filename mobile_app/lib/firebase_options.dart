@@ -18,15 +18,9 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -40,28 +34,46 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'YOUR_WEB_API_KEY',
-    appId: 'YOUR_WEB_APP_ID',
-    messagingSenderId: 'YOUR_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    authDomain: 'YOUR_AUTH_DOMAIN',
-    storageBucket: 'YOUR_STORAGE_BUCKET',
+    apiKey: 'your-web-api-key-placeholder',
+    appId: 'your-web-app-id-placeholder',
+    messagingSenderId: 'your-sender-id-placeholder',
+    projectId: 'your-project-id-placeholder',
+    authDomain: 'your-project-id.firebaseapp.com',
+    storageBucket: 'your-project-id.appspot.com',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'YOUR_ANDROID_API_KEY',
-    appId: 'YOUR_ANDROID_APP_ID',
-    messagingSenderId: 'YOUR_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    storageBucket: 'YOUR_STORAGE_BUCKET',
+    apiKey: 'your-android-api-key-placeholder',
+    appId: 'your-android-app-id-placeholder',
+    messagingSenderId: 'your-sender-id-placeholder',
+    projectId: 'your-project-id-placeholder',
+    storageBucket: 'your-project-id.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'YOUR_IOS_API_KEY',
-    appId: 'YOUR_IOS_APP_ID',
-    messagingSenderId: 'YOUR_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    storageBucket: 'YOUR_STORAGE_BUCKET',
+    apiKey: 'your-ios-api-key-placeholder',
+    appId: 'your-ios-app-id-placeholder',
+    messagingSenderId: 'your-sender-id-placeholder',
+    projectId: 'your-project-id-placeholder',
+    storageBucket: 'your-project-id.appspot.com',
     iosBundleId: 'com.example.resumeAtsMobile',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'your-ios-api-key-placeholder',
+    appId: 'your-ios-app-id-placeholder',
+    messagingSenderId: 'your-sender-id-placeholder',
+    projectId: 'your-project-id-placeholder',
+    storageBucket: 'your-project-id.appspot.com',
+    iosBundleId: 'com.example.resumeAtsMobile',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'your-web-api-key-placeholder',
+    appId: 'your-web-app-id-placeholder',
+    messagingSenderId: 'your-sender-id-placeholder',
+    projectId: 'your-project-id-placeholder',
+    authDomain: 'your-project-id.firebaseapp.com',
+    storageBucket: 'your-project-id.appspot.com',
   );
 }

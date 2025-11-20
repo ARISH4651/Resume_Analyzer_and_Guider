@@ -23,9 +23,6 @@ migrate_working_dir/
 # is commented out by default.
 #.vscode/
 
-# Invalid animation files (temporary)
-assets/animations/document_scan.json
-
 # Flutter/Dart/Pub related
 **/doc/api/
 **/ios/Flutter/.last_build_id
