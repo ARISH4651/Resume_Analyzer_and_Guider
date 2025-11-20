@@ -165,25 +165,70 @@ class _AnalyzeScreenState extends ConsumerState<AnalyzeScreen> {
               const SizedBox(height: 24),
               
               // Analyze Button
-              ElevatedButton(
-                onPressed: _isAnalyzing ? null : _analyzeResume,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+              Container(
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFA463F2), Color(0xFF7B2FF7)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF7B2FF7).withOpacity(0.55),
+                      blurRadius: 24,
+                      spreadRadius: 0,
+                      offset: const Offset(0, 4),
+                    ),
+                    BoxShadow(
+                      color: const Color(0xFFA463F2).withOpacity(0.35),
+                      blurRadius: 40,
+                      spreadRadius: -5,
+                      offset: const Offset(0, 8),
+                    ),
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 6,
+                      spreadRadius: -3,
+                      offset: const Offset(0, 0),
+                    ),
+                  ],
                 ),
-                child: _isAnalyzing
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                child: ElevatedButton(
+                  onPressed: _isAnalyzing ? null : _analyzeResume,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    foregroundColor: Colors.white,
+                    shadowColor: Colors.transparent,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: _isAnalyzing
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      : const Text(
+                          'Analyze Resume',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.5,
+                            shadows: [
+                              Shadow(
+                                color: Color(0x40FFFFFF),
+                                blurRadius: 8,
+                              ),
+                            ],
+                          ),
                         ),
-                      )
-                    : const Text(
-                        'Analyze Resume',
-                        style: TextStyle(fontSize: 16),
-                      ),
+                ),
               ),
             ],
           ),

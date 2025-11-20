@@ -86,76 +86,241 @@ class _GuideScreenState extends ConsumerState<GuideScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFF0A0A0A),
       appBar: AppBar(
-        title: const Text('Resume Guide'),
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Messages List
-            Expanded(
-              child: _messages.isEmpty
-                  ? _buildWelcomeView()
-                  : _buildChatView(),
-            ),
-            
-            // Input Field
-            _buildInputField(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildWelcomeView() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            'Where should we begin?',
-            style: Theme.of(context).textTheme.displayMedium,
-            textAlign: TextAlign.center,
+        title: const Text(
+          'Resume Guide',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.5,
           ),
-          const SizedBox(height: 40),
-          
-          // Quick Questions
-          ...quickQuestions.map((question) => Padding(
-            padding: const EdgeInsets.only(bottom: 12.0),
-            child: SizedBox(
-              width: double.infinity,
-              child: OutlinedButton(
-                onPressed: () => _sendMessage(question),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.all(16),
-                  side: const BorderSide(color: Colors.grey),
-                ),
-                child: Text(
-                  question,
-                  style: const TextStyle(fontSize: 14),
-                ),
+        ),
+        backgroundColor: const Color(0xFF1A1A1A),
+        elevation: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(
+            height: 1,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.transparent,
+                  Colors.white.withOpacity(0.1),
+                  Colors.transparent,
+                ],
               ),
             ),
-          )),
+          ),
+        ),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: _messages.isEmpty
+                ? _buildWelcomeView()
+                : _buildChatView(),
+          ),
+          _buildInputField(),
         ],
       ),
     );
   }
 
+  Widget _buildWelcomeView() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            const Color(0xFF1A1A1A),
+            const Color(0xFF0A0A0A),
+          ],
+        ),
+      ),
+      child: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      const Color(0xFF00F5A0).withOpacity(0.2),
+                      const Color(0xFF00C98D).withOpacity(0.1),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF00F5A0).withOpacity(0.3),
+                      blurRadius: 20,
+                      spreadRadius: 0,
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.auto_awesome_outlined,
+                  size: 40,
+                  color: Color(0xFF00F5A0),
+                ),
+              ),
+              const SizedBox(height: 32),
+              const Text(
+                'Where should we begin?',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                  letterSpacing: -0.5,
+                  height: 1.2,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Choose a question to get started with AI-powered guidance',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w400,
+                  color: Colors.white.withOpacity(0.6),
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 48),
+              ...quickQuestions.asMap().entries.map((entry) {
+                final index = entry.key;
+                final question = entry.value;
+                
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 16.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.white.withOpacity(0.05),
+                          Colors.white.withOpacity(0.02),
+                        ],
+                      ),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.08),
+                        width: 1,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.3),
+                          blurRadius: 16,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () => _sendMessage(question),
+                        borderRadius: BorderRadius.circular(20),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 18,
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 32,
+                                height: 32,
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    colors: [
+                                      Color(0xFF00F5A0),
+                                      Color(0xFF00C98D),
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(10),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: const Color(0xFF00F5A0).withOpacity(0.3),
+                                      blurRadius: 8,
+                                      spreadRadius: 0,
+                                    ),
+                                  ],
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    '${index + 1}',
+                                    style: const TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Text(
+                                  question,
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.white,
+                                    height: 1.4,
+                                    letterSpacing: 0.2,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Icon(
+                                Icons.arrow_forward_ios_rounded,
+                                size: 16,
+                                color: Colors.white.withOpacity(0.4),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildChatView() {
-    return ListView.builder(
-      controller: _scrollController,
-      padding: const EdgeInsets.all(16),
-      itemCount: _messages.length + (_isLoading ? 1 : 0),
-      itemBuilder: (context, index) {
-        if (index == _messages.length) {
-          return _buildLoadingIndicator();
-        }
-        
-        final message = _messages[index];
-        return _buildMessageBubble(message);
-      },
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            const Color(0xFF1A1A1A),
+            const Color(0xFF0A0A0A),
+          ],
+        ),
+      ),
+      child: ListView.builder(
+        controller: _scrollController,
+        padding: const EdgeInsets.all(20),
+        itemCount: _messages.length + (_isLoading ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (index == _messages.length) {
+            return _buildLoadingIndicator();
+          }
+          final message = _messages[index];
+          return _buildMessageBubble(message);
+        },
+      ),
     );
   }
 
@@ -163,32 +328,85 @@ class _GuideScreenState extends ConsumerState<GuideScreen> {
     return Align(
       alignment: message.isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
-        padding: const EdgeInsets.all(16),
+        margin: const EdgeInsets.only(bottom: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
         constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.8,
+          maxWidth: MediaQuery.of(context).size.width * 0.82,
         ),
         decoration: BoxDecoration(
-          color: message.isUser
-              ? const Color(0xFF2D2D2D)
-              : const Color(0xFF1E1E1E),
-          borderRadius: BorderRadius.circular(12),
+          gradient: message.isUser
+              ? const LinearGradient(
+                  colors: [Color(0xFF00F5A0), Color(0xFF00C98D)],
+                )
+              : LinearGradient(
+                  colors: [
+                    Colors.white.withOpacity(0.06),
+                    Colors.white.withOpacity(0.03),
+                  ],
+                ),
+          borderRadius: BorderRadius.only(
+            topLeft: const Radius.circular(20),
+            topRight: const Radius.circular(20),
+            bottomLeft: Radius.circular(message.isUser ? 20 : 6),
+            bottomRight: Radius.circular(message.isUser ? 6 : 20),
+          ),
+          border: Border.all(
+            color: message.isUser
+                ? Colors.transparent
+                : Colors.white.withOpacity(0.08),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: message.isUser
+                  ? const Color(0xFF00F5A0).withOpacity(0.25)
+                  : Colors.black.withOpacity(0.3),
+              blurRadius: message.isUser ? 16 : 12,
+              spreadRadius: 0,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              message.isUser ? 'You' : 'AI Guide',
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
-                color: Colors.grey,
-              ),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
+                  decoration: BoxDecoration(
+                    color: message.isUser
+                        ? Colors.black.withOpacity(0.2)
+                        : Colors.white.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    message.isUser ? 'You' : 'AI Guide',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 11,
+                      color: message.isUser
+                          ? Colors.black
+                          : const Color(0xFF00F5A0),
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             Text(
               message.text,
-              style: const TextStyle(fontSize: 14),
+              style: TextStyle(
+                fontSize: 15,
+                color: message.isUser ? Colors.black : Colors.white,
+                fontWeight: FontWeight.w400,
+                height: 1.5,
+                letterSpacing: 0.2,
+              ),
             ),
           ],
         ),
@@ -200,18 +418,56 @@ class _GuideScreenState extends ConsumerState<GuideScreen> {
     return Align(
       alignment: Alignment.centerLeft,
       child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
-        padding: const EdgeInsets.all(16),
+        margin: const EdgeInsets.only(bottom: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         decoration: BoxDecoration(
-          color: const Color(0xFF1E1E1E),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: const SizedBox(
-          width: 40,
-          height: 20,
-          child: Center(
-            child: CircularProgressIndicator(strokeWidth: 2),
+          gradient: LinearGradient(
+            colors: [
+              Colors.white.withOpacity(0.06),
+              Colors.white.withOpacity(0.03),
+            ],
           ),
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+            bottomLeft: Radius.circular(6),
+            bottomRight: Radius.circular(20),
+          ),
+          border: Border.all(
+            color: Colors.white.withOpacity(0.08),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.3),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: 18,
+              height: 18,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  const Color(0xFF00F5A0),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              'AI is thinking...',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.6),
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -219,31 +475,89 @@ class _GuideScreenState extends ConsumerState<GuideScreen> {
 
   Widget _buildInputField() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
       decoration: BoxDecoration(
-        color: Colors.black,
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            const Color(0xFF1A1A1A).withOpacity(0.95),
+            const Color(0xFF0A0A0A),
+          ],
+        ),
         border: Border(
-          top: BorderSide(color: Colors.grey.shade800),
+          top: BorderSide(
+            color: Colors.white.withOpacity(0.08),
+            width: 1,
+          ),
         ),
       ),
       child: Row(
         children: [
           Expanded(
-            child: TextField(
-              controller: _messageController,
-              decoration: const InputDecoration(
-                hintText: 'Ask anything...',
-                border: InputBorder.none,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.08),
+                  width: 1,
+                ),
               ),
-              onSubmitted: _sendMessage,
+              child: TextField(
+                controller: _messageController,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 15,
+                ),
+                decoration: InputDecoration(
+                  hintText: 'Ask anything...',
+                  hintStyle: TextStyle(
+                    color: Colors.white.withOpacity(0.4),
+                    fontSize: 15,
+                  ),
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 14,
+                  ),
+                ),
+                onSubmitted: _sendMessage,
+              ),
             ),
           ),
-          const SizedBox(width: 8),
-          CircleAvatar(
-            backgroundColor: const Color(0xFF2D2D2D),
-            child: IconButton(
-              icon: const Icon(Icons.arrow_upward, size: 20),
-              onPressed: () => _sendMessage(_messageController.text),
+          const SizedBox(width: 12),
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [
+                  Color(0xFF00F5A0),
+                  Color(0xFF00C98D),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF00F5A0).withOpacity(0.4),
+                  blurRadius: 16,
+                  spreadRadius: 0,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => _sendMessage(_messageController.text),
+                borderRadius: BorderRadius.circular(24),
+                child: const Icon(
+                  Icons.arrow_upward_rounded,
+                  color: Colors.black,
+                  size: 24,
+                ),
+              ),
             ),
           ),
         ],

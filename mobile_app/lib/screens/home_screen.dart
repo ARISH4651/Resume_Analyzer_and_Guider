@@ -12,7 +12,132 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
   bool _showInfo = false;
+  bool _showProfileMenu = false;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final LayerLink _layerLink = LayerLink();
+  OverlayEntry? _overlayEntry;
+
+  @override
+  void dispose() {
+    _removeOverlay();
+    super.dispose();
+  }
+
+  void _removeOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+    setState(() => _showProfileMenu = false);
+  }
+
+  void _toggleProfileMenu() {
+    if (_showProfileMenu) {
+      _removeOverlay();
+    } else {
+      _showOverlay();
+    }
+  }
+
+  void _showOverlay() {
+    _overlayEntry = _createOverlayEntry();
+    Overlay.of(context).insert(_overlayEntry!);
+    setState(() => _showProfileMenu = true);
+  }
+
+  OverlayEntry _createOverlayEntry() {
+    return OverlayEntry(
+      builder: (context) => GestureDetector(
+        onTap: _removeOverlay,
+        child: Container(
+          color: Colors.transparent,
+          child: Stack(
+            children: [
+              Positioned(
+                left: 20,
+                bottom: 100,
+                child: Material(
+                  color: Colors.transparent,
+                  child: Container(
+                    width: 220,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.white.withOpacity(0.12),
+                          Colors.white.withOpacity(0.08),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.15),
+                        width: 1,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.5),
+                          blurRadius: 24,
+                          spreadRadius: 0,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _buildProfileMenuItem(
+                          icon: Icons.person_outline,
+                          title: 'Profile',
+                          onTap: () {
+                            _removeOverlay();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Profile coming soon!')),
+                            );
+                          },
+                        ),
+                        _buildProfileMenuItem(
+                          icon: Icons.settings_outlined,
+                          title: 'Settings',
+                          onTap: () {
+                            _removeOverlay();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Settings coming soon!')),
+                            );
+                          },
+                        ),
+                        _buildProfileMenuItem(
+                          icon: Icons.help_outline,
+                          title: 'Help',
+                          onTap: () {
+                            _removeOverlay();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Help coming soon!')),
+                            );
+                          },
+                        ),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 12),
+                          child: Divider(color: Colors.white24, height: 1),
+                        ),
+                        _buildProfileMenuItem(
+                          icon: Icons.logout,
+                          title: 'Logout',
+                          isLogout: true,
+                          onTap: () {
+                            _removeOverlay();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Logout coming soon!')),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +209,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(14),
+                        width: 72,
+                        height: 72,
+                        padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
@@ -112,15 +239,16 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             ),
                           ],
                         ),
-                        child: const Icon(
-                          Icons.description_outlined,
-                          color: Color(0xFFA463F2),
-                          size: 40,
+                        child: Lottie.asset(
+                          'assets/animations/document_glow.json',
+                          fit: BoxFit.contain,
                         ),
                       ),
                       const SizedBox(width: 32),
                       Container(
-                        padding: const EdgeInsets.all(14),
+                        width: 72,
+                        height: 72,
+                        padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
@@ -148,15 +276,16 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             ),
                           ],
                         ),
-                        child: const Icon(
-                          Icons.psychology_outlined,
-                          color: Color(0xFF2196F3),
-                          size: 40,
+                        child: Lottie.asset(
+                          'assets/animations/brain_pulse.json',
+                          fit: BoxFit.contain,
                         ),
                       ),
                       const SizedBox(width: 32),
                       Container(
-                        padding: const EdgeInsets.all(14),
+                        width: 72,
+                        height: 72,
+                        padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
@@ -184,10 +313,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             ),
                           ],
                         ),
-                        child: const Icon(
-                          Icons.forum_outlined,
-                          color: Color(0xFF00F5A0),
-                          size: 40,
+                        child: Lottie.asset(
+                          'assets/animations/chat_bubble.json',
+                          fit: BoxFit.contain,
                         ),
                       ),
                     ],
@@ -197,7 +325,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   
                   // 4th Icon
                   Container(
-                    padding: const EdgeInsets.all(14),
+                    width: 72,
+                    height: 72,
+                    padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
@@ -225,10 +355,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         ),
                       ],
                     ),
-                    child: const Icon(
-                      Icons.assignment_outlined,
-                      color: Color(0xFFFF6EC7),
-                      size: 40,
+                    child: Lottie.asset(
+                      'assets/animations/checklist_complete.json',
+                      fit: BoxFit.contain,
                     ),
                   ),
                   
@@ -620,35 +749,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           children: [
             const SizedBox(height: 20),
             
-            // Header
-            const Padding(
-              padding: EdgeInsets.all(20.0),
-              child: Column(
-                children: [
-                  Text(
-                    '👋 Hello! I\'m your AI Career Assistant',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    'What would you like to do today?',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 14,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
-            
-            const Divider(color: Colors.white24),
-            
             // Menu Items
             _buildDrawerItem(
               icon: Icons.home_outlined,
@@ -703,27 +803,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             const Spacer(),
             
             // Profile Section
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    backgroundColor: Colors.purple.withOpacity(0.3),
-                    child: const Icon(Icons.person, color: Colors.white),
-                  ),
-                  const SizedBox(width: 12),
-                  const Expanded(
-                    child: Text(
-                      'Profile',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            _buildProfileSection(),
           ],
         ),
       ),
@@ -745,6 +825,150 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         ),
       ),
       onTap: onTap,
+    );
+  }
+
+  Widget _buildProfileSection() {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Colors.white.withOpacity(0.08),
+            Colors.white.withOpacity(0.04),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.12),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: _toggleProfileMenu,
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Row(
+              children: [
+                // Avatar
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [
+                        Color(0xFFA463F2),
+                        Color(0xFF7B2FF7),
+                      ],
+                    ),
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFA463F2).withOpacity(0.4),
+                        blurRadius: 12,
+                        spreadRadius: 0,
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.person,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                // Name & Role
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'User',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.2,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Job Seeker',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.5),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Dropdown Arrow
+                AnimatedRotation(
+                  turns: _showProfileMenu ? 0.5 : 0,
+                  duration: const Duration(milliseconds: 200),
+                  child: Icon(
+                    Icons.keyboard_arrow_up,
+                    color: Colors.white.withOpacity(0.6),
+                    size: 20,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProfileMenuItem({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+    bool isLogout = false,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Row(
+            children: [
+              Icon(
+                icon,
+                color: isLogout
+                    ? const Color(0xFFFF6B6B)
+                    : Colors.white.withOpacity(0.8),
+                size: 20,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                title,
+                style: TextStyle(
+                  color: isLogout
+                      ? const Color(0xFFFF6B6B)
+                      : Colors.white,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 0.2,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
