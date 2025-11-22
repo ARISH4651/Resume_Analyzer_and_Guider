@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
 import '../services/api_service.dart';
 import 'result_screen.dart';
+import '../theme/app_text_styles.dart';
 
 class AnalyzeScreen extends ConsumerStatefulWidget {
   const AnalyzeScreen({super.key});
@@ -85,7 +86,10 @@ class _AnalyzeScreenState extends ConsumerState<AnalyzeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Analyze Resume'),
+        title: Text(
+          'Analyze Resume',
+          style: AppTextStyles.heading3.copyWith(fontSize: 20),
+        ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -102,12 +106,12 @@ class _AnalyzeScreenState extends ConsumerState<AnalyzeScreen> {
                     children: [
                       Text(
                         'Job Description (Optional)',
-                        style: Theme.of(context).textTheme.titleMedium,
+                        style: AppTextStyles.heading3.copyWith(fontSize: 18),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         'Add job description for better keyword matching',
-                        style: Theme.of(context).textTheme.bodySmall,
+                        style: AppTextStyles.bodySmall,
                       ),
                       const SizedBox(height: 12),
                       TextField(
@@ -145,7 +149,7 @@ class _AnalyzeScreenState extends ConsumerState<AnalyzeScreen> {
                         const SizedBox(height: 16),
                         Text(
                           _fileName ?? 'Upload Resume',
-                          style: Theme.of(context).textTheme.titleMedium,
+                          style: AppTextStyles.heading3.copyWith(fontSize: 18),
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 8),

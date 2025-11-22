@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart' as lottie_lib;
 import 'analyze_screen.dart';
 import 'guide_screen.dart';
+import '../theme/app_text_styles.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -190,19 +191,20 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   const SizedBox(height: 16),
                   
                   // Title
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 30),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 30),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
-                          'Hello! I\'m Your AI Assistant\nWhat would you like to do today?',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            fontFamily: 'Inria Serif',
-                          ),
+                          'Hello! I\'m Your AI Assistant',
+                          style: AppTextStyles.heading1,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'What would you like to do today?',
+                          style: AppTextStyles.subtitle,
                           textAlign: TextAlign.center,
                         ),
                       ],
@@ -450,22 +452,17 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                   ),
                                 ],
                               ),
-                              child: const Column(
+                              child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Text(
+                                  const Text(
                                     '🎯',
                                     style: TextStyle(fontSize: 32),
                                   ),
-                                  SizedBox(height: 12),
+                                  const SizedBox(height: 12),
                                   Text(
                                     'Get instant ATS score & personalized feedback',
-                                    style: TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                      height: 1.5,
-                                    ),
+                                    style: AppTextStyles.bodySmall,
                                     textAlign: TextAlign.center,
                                   ),
                                 ],
@@ -520,14 +517,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                       borderRadius: BorderRadius.circular(16),
                                     ),
                                   ),
-                                  child: const Text(
+                                  child: Text(
                                     'Analyze Resume',
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w600,
-                                      letterSpacing: 0.5,
+                                    style: AppTextStyles.button.copyWith(
                                       shadows: [
-                                        Shadow(
+                                        const Shadow(
                                           color: Color(0x40FFFFFF),
                                           blurRadius: 8,
                                         ),
@@ -573,22 +567,17 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                   ),
                                 ],
                               ),
-                              child: const Column(
+                              child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Text(
+                                  const Text(
                                     '📚',
                                     style: TextStyle(fontSize: 32),
                                   ),
-                                  SizedBox(height: 12),
+                                  const SizedBox(height: 12),
                                   Text(
                                     'Learn tips & strategies to craft the perfect resume',
-                                    style: TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                      height: 1.5,
-                                    ),
+                                    style: AppTextStyles.bodySmall,
                                     textAlign: TextAlign.center,
                                   ),
                                 ],
@@ -643,14 +632,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                                       borderRadius: BorderRadius.circular(16),
                                     ),
                                   ),
-                                  child: const Text(
+                                  child: Text(
                                     'Resume Guide',
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w600,
-                                      letterSpacing: 0.5,
+                                    style: AppTextStyles.button.copyWith(
                                       shadows: [
-                                        Shadow(
+                                        const Shadow(
                                           color: Color(0x40FFFFFF),
                                           blurRadius: 8,
                                         ),
@@ -691,42 +677,34 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             width: 1,
                           ),
                         ),
-                        child: const Column(
+                        child: Column(
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
                               children: [
-                                Text(
+                                const Text(
                                   '🎓',
                                   style: TextStyle(fontSize: 24),
                                 ),
-                                SizedBox(width: 8),
+                                const SizedBox(width: 8),
                                 Text(
                                   'AI Career Mentor',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                  style: AppTextStyles.heading3.copyWith(fontSize: 22),
                                 ),
-                                SizedBox(width: 8),
-                                Text(
+                                const SizedBox(width: 8),
+                                const Text(
                                   '🤖',
                                   style: TextStyle(fontSize: 24),
                                 ),
                               ],
                             ),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                             Text(
                               'Your smart companion for career growth! 📝',
-                              style: TextStyle(
-                                color: Colors.white70,
-                                fontSize: 15,
-                                height: 1.5,
-                              ),
+                              style: AppTextStyles.subtitle2,
                             ),
-                            SizedBox(height: 12),
+                            const SizedBox(height: 12),
                             Text(
                               'It analyzes your resume 📄 using NLP, finds skill gaps 💔, and gives personalized course, project, and certification suggestions 🎓.',
                               style: TextStyle(
@@ -931,22 +909,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'User',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 0.2,
-                        ),
+                        style: AppTextStyles.button.copyWith(fontSize: 15),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         'Job Seeker',
-                        style: TextStyle(
+                        style: AppTextStyles.caption.copyWith(
                           color: Colors.white.withOpacity(0.5),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w400,
                         ),
                       ),
                     ],

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lottie/lottie.dart' as lottie_lib;
 import '../services/api_service.dart';
 import '../models/chat_message.dart';
+import '../theme/app_text_styles.dart';
 
 class GuideScreen extends ConsumerStatefulWidget {
   const GuideScreen({super.key});
@@ -89,13 +90,9 @@ class _GuideScreenState extends ConsumerState<GuideScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFF0A0A0A),
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Resume Guide',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.5,
-          ),
+          style: AppTextStyles.heading3.copyWith(fontSize: 20),
         ),
         backgroundColor: const Color(0xFF1A1A1A),
         elevation: 0,
